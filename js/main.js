@@ -17,6 +17,10 @@ Main.prototype = {
             'd7', 'd8', 'd9'
         ];
 
+        mathdice.operators = [
+            'add', 'subtract', 'multiply', 'divide'
+        ];
+
         // the score
         mathdice.score = 0;
 
@@ -87,7 +91,7 @@ Main.prototype = {
                     mathdice.swapTiles();
 
                     // check matches after a swappo
-                    mathdice.game.time.events.add(500, function() {
+                    mathdice.game.time.events.add(250, function() {
                         mathdice.checkMatch();
                     });
                 }
@@ -119,7 +123,7 @@ Main.prototype = {
         }
 
         // oh yeah - check for matches
-        mathdice.game.time.events.add(600, function() {
+        mathdice.game.time.events.add(300, function() {
             mathdice.checkMatch();
         });
     },
@@ -135,7 +139,7 @@ Main.prototype = {
         var tile = mathdice.tiles.create((x * mathdice.tileWidth) + mathdice.tileWidth / 2, 0, tileToAdd);
 
         // animate into position
-        mathdice.game.add.tween(tile).to({y:y*mathdice.tileHeight+(mathdice.tileHeight/2)}, 500, Phaser.Easing.Back.Out, true)
+        mathdice.game.add.tween(tile).to({y:y*mathdice.tileHeight+(mathdice.tileHeight/2)}, 250, Phaser.Easing.Linear.In, true)
 
         // set anchor point to center
         tile.anchor.setTo(0.5, 0.5);
@@ -187,8 +191,8 @@ Main.prototype = {
             mathdice.tileGrid[tile2Pos.x][tile2Pos.y] = mathdice.activeTile1;
 
             // swap tiles in actual how they look world
-            mathdice.game.add.tween(mathdice.activeTile1).to({x:tile2Pos.x * mathdice.tileWidth + (mathdice.tileWidth/2), y:tile2Pos.y * mathdice.tileHeight + (mathdice.tileHeight/2)}, 200, Phaser.Easing.Back.Out, true);
-            mathdice.game.add.tween(mathdice.activeTile2).to({x:tile1Pos.x * mathdice.tileWidth + (mathdice.tileWidth/2), y:tile1Pos.y * mathdice.tileHeight + (mathdice.tileHeight/2)}, 200, Phaser.Easing.Back.Out, true);
+            mathdice.game.add.tween(mathdice.activeTile1).to({x:tile2Pos.x * mathdice.tileWidth + (mathdice.tileWidth/2), y:tile2Pos.y * mathdice.tileHeight + (mathdice.tileHeight/2)}, 110, Phaser.Easing.Linear.In, true);
+            mathdice.game.add.tween(mathdice.activeTile2).to({x:tile1Pos.x * mathdice.tileWidth + (mathdice.tileWidth/2), y:tile1Pos.y * mathdice.tileHeight + (mathdice.tileHeight/2)}, 110, Phaser.Easing.Linear.In, true);
 
             mathdice.activeTile1 = mathdice.tileGrid[tile1Pos.x][tile1Pos.y];
             mathdice.activeTile2 = mathdice.tileGrid[tile2Pos.x][tile2Pos.y];
@@ -215,12 +219,12 @@ Main.prototype = {
             mathdice.fillTile();
 
             // after a half second, let the user do things again
-            mathdice.game.time.events.add(500, function() {
+            mathdice.game.time.events.add(250, function() {
                 mathdice.tileUp();
             });
 
             // check again just in case you made a big ole cascade happen
-            mathdice.game.time.events.add(600, function() {
+            mathdice.game.time.events.add(300, function() {
                 mathdice.checkMatch();
             });
         } else {
@@ -228,7 +232,7 @@ Main.prototype = {
             // this only gets run here because the previous "if" will continuously run
             // y'know, until this is available again anyway
             mathdice.swapTiles();
-            mathdice.game.time.events.add(500, function() {
+            mathdice.game.time.events.add(250, function() {
                 mathdice.tileUp();
                 mathdice.canMove = true;
             });
@@ -391,7 +395,7 @@ Main.prototype = {
                     mathdice.tileGrid[i][j] = tempTile;
                     mathdice.tileGrid[i][j-1] = null;
 
-                    mathdice.game.add.tween(tempTile).to({y:(mathdice.tileHeight*j)+(mathdice.tileHeight/2)}, 200, Phaser.Easing.Back.Out, true);
+                    mathdice.game.add.tween(tempTile).to({y:(mathdice.tileHeight*j)+(mathdice.tileHeight/2)}, 110, Phaser.Easing.Linear.In, true);
 
                     // positions all changed so start this process again from the bottom
                     // we're at the end of a loop so we don't gotta set this to -1
