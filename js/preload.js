@@ -24,20 +24,20 @@ Preload.prototype = {
 		this.game.load.text('targets', 'assets/targets.txt');
 
 		// load images
-		this.game.load.image('d1', 'assets/dice1.png');
-		this.game.load.image('d2', 'assets/dice2.png');
-		this.game.load.image('d3', 'assets/dice3.png');
-		this.game.load.image('d4', 'assets/dice4.png');
-		this.game.load.image('d5', 'assets/dice5.png');
-		this.game.load.image('d6', 'assets/dice6.png');
-		this.game.load.image('d7', 'assets/dice7.png');
-		this.game.load.image('d8', 'assets/dice8.png');
-		this.game.load.image('d9', 'assets/dice9.png');
+		this.game.load.spritesheet('d1', 'assets/dice1.png', 110, 110, 2);
+		this.game.load.spritesheet('d2', 'assets/dice2.png', 110, 110, 2);
+		this.game.load.spritesheet('d3', 'assets/dice3.png', 110, 110, 2);
+		this.game.load.spritesheet('d4', 'assets/dice4.png', 110, 110, 2);
+		this.game.load.spritesheet('d5', 'assets/dice5.png', 110, 110, 2);
+		this.game.load.spritesheet('d6', 'assets/dice6.png', 110, 110, 2);
+		this.game.load.spritesheet('d7', 'assets/dice7.png', 110, 110, 2);
+		this.game.load.spritesheet('d8', 'assets/dice8.png', 110, 110, 2);
+		this.game.load.spritesheet('d9', 'assets/dice9.png', 110, 110, 2);
 
-		this.game.load.image('op-add', 'assets/opadd.png');
-		this.game.load.image('op-subtract', 'assets/opsub.png');
-		this.game.load.image('op-multiply', 'assets/opmul.png');
-		this.game.load.image('op-divide', 'assets/opdiv.png');
+		this.game.load.spritesheet('op-+', 'assets/opadd.png', 110, 110, 3);
+		this.game.load.spritesheet('op--', 'assets/opsub.png', 110, 110, 3);
+		this.game.load.spritesheet('op-*', 'assets/opmul.png', 110, 110, 3);
+		this.game.load.spritesheet('op-/', 'assets/opdiv.png', 110, 110, 3);
 
 	},
 
