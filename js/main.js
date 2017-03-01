@@ -80,8 +80,8 @@ Main.prototype = {
 		
 
 		// define how long the game should last
-		me.remainingTime = 6000;
-		me.fullTime = 6000;
+		me.remainingTime = 10000;
+		me.fullTime = 10000;
 
 		// start the timer going
 		me.createTimer();
@@ -230,10 +230,6 @@ Main.prototype = {
 
 				// grab tile being hovered up ons
 				var hoverTile = me.tileGrid[hoverPosX][hoverPosY];
-				hoverTile.frame = 1;
-				me.game.input.onUp.add(function() {
-					hoverTile.frame = 0;
-				}, me);
 
 				// get grabbed tile bounds
 				var tileLeftPosition = me.leftBuffer + (hoverPosX * me.tileWidth);
@@ -251,6 +247,10 @@ Main.prototype = {
 
 					// set tile active
 					hoverTile.isActive = true;
+					hoverTile.frame = 1;
+					me.game.input.onUp.add(function() {
+						hoverTile.frame = 0;
+					}, me);
 
 					// push tile to current sum
 					me.currentSum.push(hoverTile);
@@ -281,7 +281,7 @@ Main.prototype = {
 
 					if (finalEquation == toHitTarget) {
 						me.scoreAnimation(me.currentSum[1].x, me.currentSum[1].y, '+10', 10);
-						me.remainingTime += 200;
+						me.remainingTime += 500;
 						me.removeTile(me.currentSum);
 						me.resetTile();
 						me.getNewTiles();
