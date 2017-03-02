@@ -24,20 +24,20 @@ Preload.prototype = {
 		this.game.load.text('targets', 'assets/targets.txt');
 
 		// load images
-		this.game.load.spritesheet('d1', 'assets/dice1.png', 110, 110, 2);
-		this.game.load.spritesheet('d2', 'assets/dice2.png', 110, 110, 2);
-		this.game.load.spritesheet('d3', 'assets/dice3.png', 110, 110, 2);
-		this.game.load.spritesheet('d4', 'assets/dice4.png', 110, 110, 2);
-		this.game.load.spritesheet('d5', 'assets/dice5.png', 110, 110, 2);
-		this.game.load.spritesheet('d6', 'assets/dice6.png', 110, 110, 2);
-		this.game.load.spritesheet('d7', 'assets/dice7.png', 110, 110, 2);
-		this.game.load.spritesheet('d8', 'assets/dice8.png', 110, 110, 2);
-		this.game.load.spritesheet('d9', 'assets/dice9.png', 110, 110, 2);
+		this.game.load.spritesheet('d1', 'assets/dice1.png', 85, 85, 2);
+		this.game.load.spritesheet('d2', 'assets/dice2.png', 85, 85, 2);
+		this.game.load.spritesheet('d3', 'assets/dice3.png', 85, 85, 2);
+		this.game.load.spritesheet('d4', 'assets/dice4.png', 85, 85, 2);
+		this.game.load.spritesheet('d5', 'assets/dice5.png', 85, 85, 2);
+		this.game.load.spritesheet('d6', 'assets/dice6.png', 85, 85, 2);
+		this.game.load.spritesheet('d7', 'assets/dice7.png', 85, 85, 2);
+		this.game.load.spritesheet('d8', 'assets/dice8.png', 85, 85, 2);
+		this.game.load.spritesheet('d9', 'assets/dice9.png', 85, 85, 2);
 
-		this.game.load.spritesheet('op-+', 'assets/opadd.png', 110, 110, 3);
-		this.game.load.spritesheet('op--', 'assets/opsub.png', 110, 110, 3);
-		this.game.load.spritesheet('op-*', 'assets/opmul.png', 110, 110, 3);
-		this.game.load.spritesheet('op-/', 'assets/opdiv.png', 110, 110, 3);
+		this.game.load.spritesheet('op-+', 'assets/opadd.png', 85, 85, 3);
+		this.game.load.spritesheet('op--', 'assets/opsub.png', 85, 85, 3);
+		this.game.load.spritesheet('op-*', 'assets/opmul.png', 85, 85, 3);
+		this.game.load.spritesheet('op-/', 'assets/opdiv.png', 85, 85, 3);
 
 	},
 

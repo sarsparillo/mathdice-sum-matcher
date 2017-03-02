@@ -2,22 +2,16 @@ var Main = function(game) {};
 
 Main.prototype = {
 
-	// git it goin
 	create: function() {
 
-		// always reference a specific 'this' with this
+		// make sure 'this' is scoped right
 		var me = this;
 
 		me.game.stage.backgroundColor = "e1e4ea";
 
-		// declare numbers in grid - if you wanted like, 'multiples of five' as a challenge, you'd just add another five or two to this
+		// declare numbers in grid
 		me.tileNumbers = [
 			"1", "2", "3", "4", "5", "6", "7", "8", "9"
-		];
-
-		// declare operators
-		me.operators = [
-			'+', '-', '*', "/"
 		];
 
 		// init grid
@@ -29,18 +23,9 @@ Main.prototype = {
 			[null, null, null, null, null]
 		];
 
-		// define tile colors
-		me.tileColors = [
-			'#2250bd',
-			'#3360ce',            
-			'#4470df',
-			'#5581ef',
-			'#6692ff'
-		];
-
 		// define tile width and height
-		me.tileWidth = 115;
-		me.tileHeight = 115;
+		me.tileWidth = 85;
+		me.tileHeight = 85;
 
 		// group to hold tiles
 		me.tiles = me.game.add.group();
@@ -80,6 +65,7 @@ Main.prototype = {
 		
 
 		// define how long the game should last
+		// set back to like, 10000 when done testing
 		me.remainingTime = 10000;
 		me.fullTime = 10000;
 
@@ -245,7 +231,7 @@ Main.prototype = {
 					hoverY < tileBottomPosition &&
 					me.currentSum.length < 2) {
 
-					// set tile active
+					// set tile active, make pink
 					hoverTile.isActive = true;
 					hoverTile.frame = 1;
 					me.game.input.onUp.add(function() {
@@ -257,9 +243,9 @@ Main.prototype = {
 
 				} // end if hovering
 
-			} // end if inside bounds
+			} // end if inside bounds check
 
-		} else {
+		} else { // if NOT guessing...
 
 			// check if a sum exists at all
 			if (me.currentSum.length > 0) {
@@ -273,24 +259,21 @@ Main.prototype = {
 						me.currentSum[i].isActive = false;
 					}
 
+					// calculate string
 					buildSum += me.operand;
 					var finalEquation = eval(buildSum[0] + buildSum[2] + buildSum[1]);
 
-					// currently checking if used in entire dictionary
-					// dictionary will be traded for target number
-
+					// check if finalEquation matches target
 					if (finalEquation == toHitTarget) {
 						me.scoreAnimation(me.currentSum[1].x, me.currentSum[1].y, '+10', 10);
 						me.remainingTime += 500;
 						me.removeTile(me.currentSum);
 						me.resetTile();
 						me.getNewTiles();
-						// in initial, is 'me.getMatches(me.tileGrid)'
 					} else {
-						console.log(finalEquation + ' is not ' + toHitTarget);
 						me.remainingTime -= 200;
 						me.updateTarget();
-					}// end if used in dictionary
+					} // end success check
 				} else {
 					me.currentSum[0].isActive = false;
 				}
@@ -320,17 +303,16 @@ Main.prototype = {
 
 
 	// find position of specific tile in grid
-	getTilePosition: function(theGrid, tile) {
-		// if nothing's found, the generic position is off screen; also applies if this spits up an error
+	getTilePosition: function(tileGrid, tile) {
+		// if nothing's found, the generic position is off screen; also applies if this spits up an error. 
 		var position = {x:-1, y:-1};
 
-		for (var i = 0; i < theGrid.length ; i++) {
-			for (var j = 0; j < theGrid[i].length; j++) {
+		for (var i = 0; i < tileGrid.length ; i++) {
+			for (var j = 0; j < tileGrid[i].length; j++) {
+
 				// if there's a match, return this position
 				// if there's no match, it'll return the off screen position from above
-
-
-				if (tile == theGrid[i][j]) {
+				if (tile == tileGrid[i][j]) {
 					position.x = i;
 					position.y = j;
 					break;
@@ -343,30 +325,23 @@ Main.prototype = {
 
 
 
-	// remove selected tiles
+	// remove tiles
 	removeTile: function(removeMe) {
 		var me = this;
-		console.log(removeMe[0]);
 		// loop through selected tiles
 		for(var i = 0; i < removeMe.length; i++) {
-			// create a temporary array to destroy selected tiles
-			var tempArray = [];
-			tempArray.push(removeMe[i]);
+			var tile = removeMe[i];
 
-			for(var j = 0; j < tempArray.length + 1; j++) {
-				console.log('removeTile ' + j);
-				var tile = tempArray[j];
-				// find tile's home in positional array
-				var tilePos = me.getTilePosition(me.tileGrid, tile);
-				// kill the tile from the screen
-				me.tiles.remove(tile);
+			// find tile's home in positional array
+			var tilePos = me.getTilePosition(me.tileGrid, tile);
 
-				// kill tile from positional array
-				if(tilePos.x != -1 && tilePos.y != -1) {
-					me.tileGrid[tilePos.x][tilePos.y] = null;
-				}               
-			}
-		}
+			// kill the tile from the screen
+			me.tiles.remove(tile);
+			// kill tile from array; also checks to make sure no error is happening
+			if(tilePos.x != -1 && tilePos.y != -1) {
+				me.tileGrid[tilePos.x][tilePos.y] = null;
+			}               
+		}		
 	}, // end remove tiles
 
 
@@ -403,24 +378,21 @@ Main.prototype = {
 
 
 
-	// put new tiles in place
+	// create new tiles in empty spaces
 	getNewTiles: function() {
 		
 		var me = this;
 
-		// iterate through grid to look for blank spaces
 		for (var i = 0; i < me.tileGrid.length; i++) {
 			for (var j = 0; j < me.tileGrid.length; j++) {
 				
-				// if blank space found, run new tile at space
+				// if blank space found, make new tile at space above board
 				if (me.tileGrid[i][j] == null) {
 					var tile = me.addTile(i, j);
 					me.tileGrid[i][j] = tile;
 				}
-
 			}
 		}
-
 	}, // end new tiles
 
 
@@ -441,9 +413,15 @@ Main.prototype = {
 	createScore: function() {
 
 		var me = this;
-		var scoreFont = "100px Arial";
+		var scoreFont = "90px Arial";
 
-		me.scoreText = me.game.add.text(me.game.world.centerX, me.topBuffer + 50 + me.tileGrid.length * me.tileHeight, "0", {font: scoreFont, fill: "#ffffff", stroke: "#535353", strokeThickness: 15}); 
+		me.scoreText = me.game.add.text(
+			me.game.world.centerX, 
+			me.topBuffer + 50 + me.tileGrid.length * me.tileHeight, "0", 
+			{	font: scoreFont, 
+				fill: "#ffffff", 
+				stroke: "#535353", 
+				strokeThickness: 15 }); 
 
 		me.scoreText.anchor.setTo(0.5, 0);
 		me.scoreText.align = 'center';
@@ -461,14 +439,22 @@ Main.prototype = {
 
 
 
-	// create score animation
+	// create score popup animation
 	scoreAnimation: function(x, y, floater, score) {
 
 		var me = this;
 		var animFont = "50px Arial";
 
 		// new label for score animation
-		var anim = me.game.add.text(x, y, floater, {font: animFont, fill: "#39d179", stroke: "#3360ce", strokeThickness: 10});
+		var anim = me.game.add.text(
+			x, 
+			y, 
+			floater, 
+			{	font: animFont, 
+				fill: "#39d179", 
+				stroke: "#3360ce", 
+				strokeThickness: 10});
+
 		anim.anchor.setTo(0.5, 0);
 		anim.align = 'center';
 
@@ -496,12 +482,34 @@ Main.prototype = {
 		var me = this;
 		var targetFont = "50px Arial";
 
-		me.targetLabel = me.game.add.text(me.game.world.centerX, me.topBuffer + me.tileGrid.length * me.tileHeight, "0", {font: targetFont, fill: "#ab9ba9", stroke: "#4d394b", strokeThickness: 8}); 
+		me.targetLabel = me.game.add.text(
+			me.game.world.centerX, 
+			me.topBuffer + me.tileGrid.length * me.tileHeight, 
+			"0", 
+			{	font: targetFont, 
+				fill: "#ab9ba9", 
+				stroke: "#4d394b", 
+				strokeThickness: 8}); 
 
 		me.targetLabel.anchor.setTo(0.5, 0);
 		me.targetLabel.align = 'center';
 
-	}, // end create score
+	}, // end create target label
+
+
+
+	// get new target
+	updateTarget: function() {
+
+		var me = this;
+		var targetArray = me.game.cache.getText('targets').split(" ");
+		var targetIndex = Math.floor(Math.random() * targetArray.length);
+
+		// set target as random item from library
+		toHitTarget = targetArray[targetIndex];
+		me.targetLabel.text = 'Target number: ' + toHitTarget;
+
+	}, // end update target
 
 
 
@@ -535,21 +543,6 @@ Main.prototype = {
 		me.timeBar.crop(cropRect);
 
 	}, // end update timer
-
-
-
-	// get new target
-	updateTarget: function() {
-
-		var me = this;
-		var targetArray = me.game.cache.getText('targets').split(" ");
-		var targetIndex = Math.floor(Math.random() * targetArray.length);
-
-		// set target as random item from library
-		toHitTarget = targetArray[targetIndex];
-		me.targetLabel.text = 'Target number: ' + toHitTarget;
-
-	}, // end update target
 
 
 
