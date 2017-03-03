@@ -36,7 +36,7 @@ Main.prototype = {
 
 		// also keep a buffer for centering
 		me.leftBuffer = (me.game.width - me.boardWidth) / 2;
-		me.topBuffer = (me.game.height - me.boardHeight) / 2;
+		me.topBuffer = (me.game.height - me.boardHeight) / 3;
 
 		// keep track if the player is currently drawing a sum
 		me.guessing = false;
@@ -65,9 +65,8 @@ Main.prototype = {
 		
 
 		// define how long the game should last
-		// set back to like, 10000 when done testing
-		me.remainingTime = 10000;
-		me.fullTime = 10000;
+		me.remainingTime = 5000;
+		me.fullTime = 5000;
 
 		// start the timer going
 		me.createTimer();
@@ -365,7 +364,7 @@ Main.prototype = {
 
 					me.game.add.tween(emptyTile).to(
 						{ y: me.topBuffer + (me.tileHeight * j) + (me.tileHeight / 2) }, 
-						250, 
+						400, 
 						Phaser.Easing.Quintic.InOut, 
 						true);
 
@@ -462,7 +461,7 @@ Main.prototype = {
 		var animTween = me.game.add.tween(anim).to(
 			{ x: me.game.world.centerX, y: me.topBuffer + 50 + me.tileGrid.length * me.tileHeight },
 			500,
-			Phaser.Easing.Quintic.In,
+			Phaser.Easing.Exponential.In,
 			true);
 
 		animTween.onComplete.add(function() {
@@ -484,7 +483,7 @@ Main.prototype = {
 
 		me.targetLabel = me.game.add.text(
 			me.game.world.centerX, 
-			me.topBuffer + me.tileGrid.length * me.tileHeight, 
+			me.topBuffer + me.boardHeight, 
 			"0", 
 			{	font: targetFont, 
 				fill: "#ab9ba9", 
