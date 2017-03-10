@@ -13,6 +13,9 @@ Main.prototype = {
 		me.tileNumbers = [
 			"1", "2", "3", "4", "5", "6", "7", "8", "9"
 		];
+		me.operators = [
+			"+", "-", "*", "/"
+		];
 
 		// init grid
 		me.tileGrid = [
@@ -259,8 +262,9 @@ Main.prototype = {
 					}
 
 					// calculate string
+					// .toFixed to make sure no giant decimal strings, + eval to remove unnecessary zeroes
 					buildSum += me.operand;
-					var finalEquation = eval(buildSum[0] + buildSum[2] + buildSum[1]);
+					var finalEquation = + eval(buildSum[0] + buildSum[2] + buildSum[1]).toFixed(2);
 
 					// check if finalEquation matches target
 					if (finalEquation == toHitTarget) {
@@ -501,12 +505,39 @@ Main.prototype = {
 	updateTarget: function() {
 
 		var me = this;
-		var targetArray = me.game.cache.getText('targets').split(" ");
-		var targetIndex = Math.floor(Math.random() * targetArray.length);
+		var buildTargetNumber = '';
+		
+		// pick a tile at random
+		var tileCol = Math.floor(Math.random() * me.tileGrid.length);
+		var tileRow = Math.floor(Math.random() * me.tileGrid[tileCol].length);
+		var startTile = me.tileGrid[tileCol][tileRow];
 
-		// set target as random item from library
-		toHitTarget = targetArray[targetIndex];
+		buildTargetNumber += startTile.tileNumber;
+		
+		// randomly pick one of the operators to use for this sum
+		var operandIndex = Math.floor(Math.random() * me.operators.length);
+		buildTargetNumber += me.operators[operandIndex];
+
+		// pick a connected tile to the selected tile
+		var randDir = '' + Math.floor(Math.random() * 2);
+
+		if (randDir == 0) {
+			if (tileCol < 4) { tileCol += 1; } 
+			else { tileCol -= 1; }
+		} else {
+			if (tileRow < 4) { tileRow += 1; } 
+			else { tileRow -= 1; }
+		}
+
+		var nextTile = me.tileGrid[tileCol][tileRow];
+
+		buildTargetNumber += nextTile.tileNumber;
+
+		// .toFixed to make sure no giant decimal strings, + eval to remove unnecessary zeroes
+		toHitTarget = + eval(buildTargetNumber[0] + buildTargetNumber[1] + buildTargetNumber[2]).toFixed(2);
+
 		me.targetLabel.text = 'Target number: ' + toHitTarget;
+
 
 	}, // end update target
 
