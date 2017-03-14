@@ -516,7 +516,10 @@ Main.prototype = {
 		
 		// randomly pick one of the operators to use for this sum
 		var operandIndex = Math.floor(Math.random() * me.operators.length);
-		buildTargetNumber += me.operators[operandIndex];
+		// buildTargetNumber += me.operators[operandIndex];
+
+		//currently set up a 'blitz' mode, must get one wrong to continue
+		buildTargetNumber += me.operand;
 
 		// pick a connected tile to the selected tile
 		var randDir = '' + Math.floor(Math.random() * 2);
