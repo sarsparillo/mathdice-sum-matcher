@@ -78,6 +78,11 @@ Main.prototype = {
 			me.updateTimer();
 		});
 
+		// TRACKING
+		// track sums made
+		me.equationList = [];
+		// track total time
+		me.totalTime = 0;
 
 		// buttons at top of screen
 		var addButton = game.add.button(
@@ -270,9 +275,13 @@ Main.prototype = {
 					if (finalEquation == toHitTarget) {
 						me.scoreAnimation(me.currentSum[1].x, me.currentSum[1].y, '+10', 10);
 						me.remainingTime += 500;
+						// push equation to tracking list
+						me.equationList.push(buildSum[0] + buildSum[2] + buildSum[1]);
+						// remove current sum
 						me.removeTile(me.currentSum);
 						me.resetTile();
 						me.getNewTiles();
+						console.log(me.equationList);
 					} else {
 						me.remainingTime -= 200;
 						me.updateTarget();
@@ -297,9 +306,11 @@ Main.prototype = {
 			me.remainingTime = me.fullTime;
 		};
 		if (me.remainingTime < 1) {
-			alert('Time up! You scored ' + me.score);
+			alert('Time up! You scored ' + me.score + ' points and kept playing for ' + Math.round(me.totalTime / 60) + ' seconds!');
 			me.game.state.restart();
 		};
+
+		me.totalTime++;
 
 	}, // end update method
 
