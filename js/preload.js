@@ -39,6 +39,8 @@ Preload.prototype = {
 		this.game.load.spritesheet('op-*', 'assets/opmul.png', 85, 85, 3);
 		this.game.load.spritesheet('op-/', 'assets/opdiv.png', 85, 85, 3);
 
+		this.game.load.spritesheet('restartButton', 'assets/restart.png', 255, 85, 3);
+
 	},
 
 	fileLoaded: function(progress){

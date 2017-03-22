@@ -306,8 +306,7 @@ Main.prototype = {
 			me.remainingTime = me.fullTime;
 		};
 		if (me.remainingTime < 1) {
-			alert('Time up! You scored ' + me.score + ' points and kept playing for ' + Math.round(me.totalTime / 60) + ' seconds!');
-			me.game.state.restart();
+			me.game.state.start("GameOver", true, false, me.score, me.totalTime);
 		};
 
 		me.totalTime++;
