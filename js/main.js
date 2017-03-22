@@ -2,6 +2,13 @@ var Main = function(game) {};
 
 Main.prototype = {
 
+	// initialize passable variables
+	init: function(gameMode){
+		var me = this;
+
+		me.gamemode = gameMode;
+	},
+
 	create: function() {
 
 		// make sure 'this' is scoped right
@@ -67,9 +74,15 @@ Main.prototype = {
 		me.updateTarget();
 		
 
-		// define how long the game should last
-		me.remainingTime = 5000;
-		me.fullTime = 5000;
+		// define how long the game should last - different time for different gamemodes
+		if (me.gamemode == "blitz") {
+			me.remainingTime = 3000;
+			me.fullTime = 3000;
+		} 
+		else if (me.gamemode == "random") {
+			me.remainingTime = 5000;
+			me.fullTime = 5000;
+		}
 
 		// start the timer going
 		me.createTimer();
@@ -274,7 +287,7 @@ Main.prototype = {
 					// check if finalEquation matches target
 					if (finalEquation == toHitTarget) {
 						me.scoreAnimation(me.currentSum[1].x, me.currentSum[1].y, '+10', 10);
-						me.remainingTime += 500;
+						me.remainingTime += 400;
 						// push equation to tracking list
 						me.equationList.push(buildSum[0] + buildSum[2] + buildSum[1]);
 						// remove current sum
@@ -283,7 +296,9 @@ Main.prototype = {
 						me.getNewTiles();
 						console.log(me.equationList);
 					} else {
-						me.remainingTime -= 200;
+
+						if (me.gamemode == "blitz") { me.remainingTime -= 400; } 
+						else if (me.gamemode == "random") { me.remainingTime -= 200; }
 						me.updateTarget();
 					} // end success check
 				} else {
@@ -306,7 +321,7 @@ Main.prototype = {
 			me.remainingTime = me.fullTime;
 		};
 		if (me.remainingTime < 1) {
-			me.game.state.start("GameOver", true, false, me.score, me.totalTime);
+			me.game.state.start("GameOver", true, false, me.score, me.totalTime, me.equationList.length);
 		};
 
 		me.totalTime++;
@@ -526,10 +541,15 @@ Main.prototype = {
 		
 		// randomly pick one of the operators to use for this sum
 		var operandIndex = Math.floor(Math.random() * me.operators.length);
-		// buildTargetNumber += me.operators[operandIndex];
 
-		//currently set up a 'blitz' mode, must get one wrong to continue
-		buildTargetNumber += me.operand;
+		// set up new score type based on gamemode
+		if (me.gamemode == "blitz") {
+			buildTargetNumber += me.operand;	
+		} 
+		else if (me.gamemode == "random") {
+			buildTargetNumber += me.operators[operandIndex];
+		}
+
 
 		// pick a connected tile to the selected tile
 		var randDir = '' + Math.floor(Math.random() * 2);
@@ -549,7 +569,7 @@ Main.prototype = {
 		// .toFixed to make sure no giant decimal strings, + eval to remove unnecessary zeroes
 		toHitTarget = + eval(buildTargetNumber[0] + buildTargetNumber[1] + buildTargetNumber[2]).toFixed(2);
 
-		me.targetLabel.text = 'Target number: ' + toHitTarget;
+		me.targetLabel.text = 'Target Number: ' + toHitTarget;
 
 
 	}, // end update target
@@ -587,11 +607,5 @@ Main.prototype = {
 
 	}, // end update timer
 
-
-
-	// trigger gameover
-	gameOver: function() {
-		this.game.state.start('GameOver');
-	}, //end trigger
 
 };

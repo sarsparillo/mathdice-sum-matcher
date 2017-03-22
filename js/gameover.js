@@ -3,11 +3,12 @@ var GameOver = function(game){};
 GameOver.prototype = {
 
 	// initialize passable variables
-	init: function(endScore, endTime){
+	init: function(endScore, endTime, wins){
 		var me = this;
 
 		me.score = endScore;
 		me.time = Math.round(endTime / 60);
+		me.correct = wins;
 	},
 
   	create: function(){
@@ -29,7 +30,7 @@ GameOver.prototype = {
 //		this.game.state.start("GameTitle");
 //	}
 
-	// display score
+	// display title
 	gameOverTitle: function() {
 		var me = this;
 		var gameOverFont = "110px Arial";
@@ -41,7 +42,7 @@ GameOver.prototype = {
 			{	font: gameOverFont, 
 				fill: "#fff", 
 				stroke: "#d6145f", 
-				strokeThickness: 17 }); 
+				strokeThickness: 15 }); 
 
 		me.gameOverTitleText.anchor.setTo(0.5, 0);
 		me.gameOverTitleText.align = 'center';
@@ -86,7 +87,7 @@ GameOver.prototype = {
 		me.timeText.anchor.setTo(0.5, 0);
 		me.timeText.align = 'center';
 
-		me.timeText.text = 'You played for ' + me.time + ' seconds';
+		me.timeText.text = 'You played for ' + me.time + ' seconds and got ' + me.correct + ' correct.';
 	}, // end create time
 
 	// restart game button
@@ -99,7 +100,7 @@ GameOver.prototype = {
 			me.topBuffer + 200,
 			'restartButton',
 			function restartGame() {
-				this.game.state.start("Main")
+				this.game.state.start("GameTitle")
 			},
 			this, 0, 1, 2
 			);

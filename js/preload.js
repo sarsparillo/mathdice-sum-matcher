@@ -40,6 +40,8 @@ Preload.prototype = {
 		this.game.load.spritesheet('op-/', 'assets/opdiv.png', 85, 85, 3);
 
 		this.game.load.spritesheet('restartButton', 'assets/restart.png', 255, 85, 3);
+		this.game.load.spritesheet('randomOperatorsButton', 'assets/randomoperators.png', 255, 85, 3);
+		this.game.load.spritesheet('blitzModeButton', 'assets/blitzmode.png', 255, 85, 3);
 
 	},
 
@@ -53,7 +55,7 @@ Preload.prototype = {
 	create: function(){
 
 		// yes i'm great at comments
-		this.game.state.start("Main");
+		this.game.state.start("GameTitle");
 
 	}
 }
