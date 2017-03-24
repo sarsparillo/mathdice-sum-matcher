@@ -96,7 +96,8 @@ GameOver.prototype = {
 			me.topBuffer + 200,
 			'restartButton',
 			function restartGame() {
-				this.game.state.start("GameTitle")
+				me.game.sound.play('clickSound');
+				me.game.state.start("GameTitle")
 			},
 			this, 0, 1, 2
 			);

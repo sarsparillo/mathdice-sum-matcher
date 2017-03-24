@@ -34,6 +34,10 @@ Preload.prototype = {
 		this.game.load.spritesheet('restartButton', 'assets/restart.png', 255, 85, 3);
 		this.game.load.spritesheet('randomOperatorsButton', 'assets/randomoperators.png', 255, 85, 3);
 		this.game.load.spritesheet('blitzModeButton', 'assets/blitzmode.png', 255, 85, 3);
+
+		// some sounds exist too doncha know
+		this.game.load.audio('clickSound', 'assets/click.wav');
+		this.game.load.audio('successSound', 'assets/success.wav');
 	},
 
 	fileLoaded: function(progress){

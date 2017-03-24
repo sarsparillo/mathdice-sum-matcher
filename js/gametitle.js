@@ -68,7 +68,8 @@ GameTitle.prototype = {
 			me.topBuffer + 90,
 			'randomOperatorsButton',
 			function randomOpStart() {
-				this.game.state.start("Main", true, false, "random")
+				me.game.sound.play('clickSound');
+				me.game.state.start("Main", true, false, "random")
 			},
 			this, 0, 1, 2
 			);
@@ -86,7 +87,8 @@ GameTitle.prototype = {
 			me.topBuffer + 180,
 			'blitzModeButton',
 			function blitzStart() {
-				this.game.state.start("Main", true, false, "blitz")
+				me.game.sound.play('clickSound');
+				me.game.state.start("Main", true, false, "blitz")
 			},
 			this, 0, 1, 2
 			);

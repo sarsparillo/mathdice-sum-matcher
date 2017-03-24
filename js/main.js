@@ -101,6 +101,7 @@ Main.prototype = {
 			me.topBuffer - me.tileHeight, 
 			'op-+', 
 			function changeOperand() {
+				me.game.sound.play('clickSound');
 				me.operand = '+';
 				addButton.setFrames(0,0,2);
 				subtractButton.setFrames(0,1,2);
@@ -115,6 +116,7 @@ Main.prototype = {
 			me.topBuffer - me.tileHeight, 
 			'op--', 
 			function changeOperand() {
+				me.game.sound.play('clickSound');
 				me.operand = '-';
 				addButton.setFrames(0,1,2);
 				subtractButton.setFrames(0,0,2);
@@ -129,6 +131,7 @@ Main.prototype = {
 			me.topBuffer - me.tileHeight, 
 			'op-*', 
 			function changeOperand() {
+				me.game.sound.play('clickSound');
 				me.operand = '*';
 				addButton.setFrames(0,1,2);
 				subtractButton.setFrames(0,1,2);
@@ -143,6 +146,7 @@ Main.prototype = {
 			me.topBuffer - me.tileHeight, 
 			'op-/', 
 			function changeOperand() {
+				me.game.sound.play('clickSound');
 				me.operand = '/';
 				addButton.setFrames(0,1,2);
 				subtractButton.setFrames(0,1,2);
@@ -254,6 +258,7 @@ Main.prototype = {
 					me.game.input.onUp.add(function() {
 						hoverTile.frame = 0;
 					}, me);
+					me.game.sound.play('clickSound');
 
 					// push tile to current sum
 					me.currentSum.push(hoverTile);
@@ -283,6 +288,7 @@ Main.prototype = {
 
 					// check if finalEquation matches target
 					if (finalEquation == toHitTarget) {
+						me.game.sound.play('successSound');
 						me.animateScore(me.currentSum[1].x, me.currentSum[1].y, me.operand);
 						// push equation to tracking list
 						me.equationList.push(buildSum[0] + buildSum[2] + buildSum[1]);
