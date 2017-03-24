@@ -3,27 +3,19 @@ var Preload = function(game){};
 Preload.prototype = {
 
 	init: function (){
-
-		var me = this;
-
 		var style = {
 			font: "32px Arial",
 			fill: "#c0ffee",
 			align: "center"
 		};
 
-		this.text = this.add.text(me.game.world.centerX, me.game.world.centerY, "Please wait. 0%", style);
+		this.text = this.add.text(this.game.world.centerX, this.game.world.centerY, "Please wait. 0%", style);
 		this.text.anchor.x = 0.5;
-
 	},
 
-	// pull that juice out of the juice holder
 	preload: function(){ 
 
-		// load targets
-		this.game.load.text('targets', 'assets/targets.txt');
-
-		// load images
+		// lotsa sprites so let's load'em all
 		this.game.load.spritesheet('d1', 'assets/dice1.png', 85, 85, 2);
 		this.game.load.spritesheet('d2', 'assets/dice2.png', 85, 85, 2);
 		this.game.load.spritesheet('d3', 'assets/dice3.png', 85, 85, 2);
@@ -42,20 +34,13 @@ Preload.prototype = {
 		this.game.load.spritesheet('restartButton', 'assets/restart.png', 255, 85, 3);
 		this.game.load.spritesheet('randomOperatorsButton', 'assets/randomoperators.png', 255, 85, 3);
 		this.game.load.spritesheet('blitzModeButton', 'assets/blitzmode.png', 255, 85, 3);
-
 	},
 
 	fileLoaded: function(progress){
-
 		this.text.text = "Please wait. " + progress + "%";
-
 	},
 
-	// take the juice to the table and also the table's name is main
 	create: function(){
-
-		// yes i'm great at comments
 		this.game.state.start("GameTitle");
-
 	}
 }

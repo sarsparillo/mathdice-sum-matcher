@@ -4,14 +4,12 @@ Main.prototype = {
 
 	// initialize passable variables
 	init: function(gameMode){
-		var me = this;
-
-		me.gamemode = gameMode;
+		this.gamemode = gameMode;
 	},
 
 	create: function() {
 
-		// make sure 'this' is scoped right
+		// make sure 'this' is scoped right, just in case i need to use 'this' again
 		var me = this;
 
 		me.game.stage.backgroundColor = "e1e4ea";
@@ -160,7 +158,6 @@ Main.prototype = {
 
 	// primarily loops through columns and rows of tileGrid
 	initTiles: function() {
-
 		var me = this;
 
 		// loop through grid columns to put things in place
@@ -286,20 +283,17 @@ Main.prototype = {
 
 					// check if finalEquation matches target
 					if (finalEquation == toHitTarget) {
-						me.scoreAnimation(me.currentSum[1].x, me.currentSum[1].y, '+10', 10);
-						me.remainingTime += 400;
+						me.animateScore(me.currentSum[1].x, me.currentSum[1].y, me.operand);
 						// push equation to tracking list
 						me.equationList.push(buildSum[0] + buildSum[2] + buildSum[1]);
 						// remove current sum
 						me.removeTile(me.currentSum);
+						me.remainingTime += 400;
 						me.resetTile();
 						me.getNewTiles();
 						console.log(me.equationList);
 					} else {
-
-						if (me.gamemode == "blitz") { me.remainingTime -= 400; } 
-						else if (me.gamemode == "random") { me.remainingTime -= 200; }
-						me.updateTarget();
+						me.incorrectSum(me.gamemode);
 					} // end success check
 				} else {
 					me.currentSum[0].isActive = false;
@@ -330,6 +324,26 @@ Main.prototype = {
 
 
 
+	// incorrectSum
+	incorrectSum: function(gamemode) {
+		var me = this;
+
+		switch (gamemode) {
+			case "blitz":
+				me.remainingTime -= 400;
+				break;
+			case "random":
+				me.remainingTime -= 200;
+				break;
+			default:
+				me.remainingTime -= 5;
+				break;
+		} 
+		me.updateTarget();
+	}, // end incorrect sum
+
+
+
 	// find position of specific tile in grid
 	getTilePosition: function(tileGrid, tile) {
 		// if nothing's found, the generic position is off screen; also applies if this spits up an error. 
@@ -347,9 +361,8 @@ Main.prototype = {
 				}
 			}
 		}
-
 		return position;
-	},
+	}, // end get tile position
 
 
 
@@ -376,7 +389,6 @@ Main.prototype = {
 
 	// moves tiles left on the board to their new position
 	resetTile: function() {
-
 		var me = this;
 
 		for (var i = 0; i < me.tileGrid.length; i++) {
@@ -427,19 +439,16 @@ Main.prototype = {
 
 	// add to score
 	incrementScore: function() {
-
 		var me = this;
 
 		me.score +=1;
 		me.scoreText.text = me.score;
-
 	}, // end increment score
 
 
 
 	// create score
 	createScore: function() {
-
 		var me = this;
 		var scoreFont = "90px Arial";
 
@@ -462,22 +471,35 @@ Main.prototype = {
 			{ x: 1, y: 1},
 			300,
 			Phaser.Easing.Linear.In);
-
 	}, // end create score
 
 
 
 	// create score popup animation
-	scoreAnimation: function(x, y, floater, score) {
-
+	animateScore: function(x, y, operator) {
 		var me = this;
 		var animFont = "50px Arial";
+
+		function score() {
+			 switch (operator) {
+				case "+": return 10;
+					break;
+				case "-": return 20;
+					break;
+				case "*": return 30;
+					break;
+				case "/": return 50;
+					break;
+				default: return 10;
+					break;
+			}
+		};
 
 		// new label for score animation
 		var anim = me.game.add.text(
 			x, 
 			y, 
-			floater, 
+			'+' + score().toString(), 
 			{	font: animFont, 
 				fill: "#39d179", 
 				stroke: "#3360ce", 
@@ -496,17 +518,15 @@ Main.prototype = {
 		animTween.onComplete.add(function() {
 			anim.destroy();
 			me.scoreTween.start();
-			me.scoreBuffer += score;
+			me.scoreBuffer += score();
 			me.updateTarget();
 		}, me);
-
 	}, // end create score animation
 
 
 
 	// create target
 	createTargetLabel: function() {
-
 		var me = this;
 		var targetFont = "50px Arial";
 
@@ -521,14 +541,12 @@ Main.prototype = {
 
 		me.targetLabel.anchor.setTo(0.5, 0);
 		me.targetLabel.align = 'center';
-
 	}, // end create target label
 
 
 
 	// get new target
 	updateTarget: function() {
-
 		var me = this;
 		var buildTargetNumber = '';
 		
@@ -570,15 +588,12 @@ Main.prototype = {
 		toHitTarget = + eval(buildTargetNumber[0] + buildTargetNumber[1] + buildTargetNumber[2]).toFixed(2);
 
 		me.targetLabel.text = 'Target Number: ' + toHitTarget;
-
-
 	}, // end update target
 
 
 
 	// create a timer to count down
 	createTimer: function() {
-
 		var me = this;
 
 		me.timeBar = me.game.add.bitmapData(me.game.width, 50);
@@ -590,22 +605,18 @@ Main.prototype = {
 
 		me.timeBar = me.game.add.sprite(0, 0, me.timeBar);
 		me.timeBar.cropEnabled = true;
-
 	}, // end create timer
 
 
 
 	// update timer
 	updateTimer: function() {
-
 		var me = this;
 
 		me.remainingTime -= 10;
 
 		var cropRect = new Phaser.Rectangle(0, 0, (me.remainingTime / me.fullTime) * me.game.width, me.timeBar.height);
 		me.timeBar.crop(cropRect);
-
 	}, // end update timer
-
 
 };

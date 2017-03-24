@@ -3,7 +3,6 @@ var GameTitle = function(game){};
 GameTitle.prototype = {
 
 	create: function(){
-
   		var me = this;
 
 		me.game.stage.backgroundColor = "e1e4ea";
@@ -15,8 +14,8 @@ GameTitle.prototype = {
   		// init start game buttons
   		me.randomOperatorsButton();
   		me.blitzModeButton();
-
 	},
+
 
 	// display title text
 	startGameTitle: function() {
@@ -38,6 +37,7 @@ GameTitle.prototype = {
 		me.gameOverTitleText.text = 'MathDice Sum Matcher';
 	}, // end create title
 
+
 	// display descriptor
 	descriptor: function() {
 		var me = this;
@@ -58,6 +58,7 @@ GameTitle.prototype = {
 		me.descriptorText.text = 'Random mode randomly selects an operator for the sum.\nBlitz mode chooses the last operator\n that you selected.';
 	}, // end descriptor
 
+
 	// random operators start game button
 	randomOperatorsButton: function() {
 		var me = this;
@@ -75,6 +76,7 @@ GameTitle.prototype = {
 		button.anchor.setTo(0.5, 0.5);
 	}, // end random operators game button
 
+
 	// blitz mode start game button
 	blitzModeButton: function() {
 		var me = this;
@@ -90,10 +92,6 @@ GameTitle.prototype = {
 			);
 
 		button.anchor.setTo(0.5, 0.5);
-	}, // end random operators game button
-
-//	startGame: function(){
-//		this.game.state.start("Main");
-//	}
+	}, // end blitz mode game button
 
 }

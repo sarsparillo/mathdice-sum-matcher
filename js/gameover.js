@@ -4,15 +4,12 @@ GameOver.prototype = {
 
 	// initialize passable variables
 	init: function(endScore, endTime, wins){
-		var me = this;
-
-		me.score = endScore;
-		me.time = Math.round(endTime / 60);
-		me.correct = wins;
+		this.score = endScore;
+		this.time = Math.round(endTime / 60);
+		this.correct = wins;
 	},
 
   	create: function(){
-
   		var me = this;
 
 		me.game.stage.backgroundColor = "e1e4ea";
@@ -23,7 +20,6 @@ GameOver.prototype = {
   		me.displayTime();
 
   		me.restartButton();
-
 	},
 
 //	restartGame: function(){
