@@ -31,20 +31,20 @@ Main.prototype = {
 			[null, null, null, null, null]
 		];
 
-		// define tile width and height
-		me.tileWidth = 85;
-		me.tileHeight = 85;
+		// define tile width and height, as well as select buffer for diagonals
+		me.tileSize = 85;
+		me.selectableArea = me.tileSize / 8;
 
 		// group to hold tiles
 		me.tiles = me.game.add.group();
 
 		// keep a reference to grid width/height
-		me.boardWidth = me.tileGrid[0].length * me.tileWidth;
-		me.boardHeight = me.tileGrid.length * me.tileHeight;
+		me.boardWidth = me.tileGrid[0].length * me.tileSize;
+		me.boardHeight = me.tileGrid.length * me.tileSize;
 
 		// also keep a buffer for centering
 		me.leftBuffer = (me.game.width - me.boardWidth) / 2;
-		me.topBuffer = (me.game.height - me.boardHeight) / 3;
+		me.topBuffer = (me.game.height - me.boardHeight) / 2;
 
 		// keep track if the player is currently drawing a sum
 		me.guessing = false;
@@ -64,7 +64,6 @@ Main.prototype = {
 		var seed = Date.now();
 		me.random = new Phaser.RandomDataGenerator([seed]);
 
-
 		// set up initial tiles, score, and first target number to hit
 		me.initTiles();
 		me.createScore();
@@ -74,8 +73,8 @@ Main.prototype = {
 
 		// define how long the game should last - different time for different gamemodes
 		if (me.gamemode == "blitz") {
-			me.remainingTime = 3000;
-			me.fullTime = 3000;
+			me.remainingTime = 300000;
+			me.fullTime = 300000;
 		} 
 		else if (me.gamemode == "random") {
 			me.remainingTime = 5000;
@@ -97,8 +96,8 @@ Main.prototype = {
 
 		// buttons at top of screen
 		var addButton = game.add.button(
-			game.world.centerX - (me.tileHeight * 2), 
-			me.topBuffer - me.tileHeight, 
+			game.world.centerX - (me.tileSize * 2), 
+			me.topBuffer - me.tileSize - 10, 
 			'op-+', 
 			function changeOperand() {
 				me.game.sound.play('clickSound');
@@ -112,8 +111,8 @@ Main.prototype = {
 			);
 
 		var subtractButton = game.add.button(
-			game.world.centerX - me.tileHeight, 
-			me.topBuffer - me.tileHeight, 
+			game.world.centerX - me.tileSize, 
+			me.topBuffer - me.tileSize - 10, 
 			'op--', 
 			function changeOperand() {
 				me.game.sound.play('clickSound');
@@ -128,7 +127,7 @@ Main.prototype = {
 
 		var multiplyButton = game.add.button(
 			game.world.centerX, 
-			me.topBuffer - me.tileHeight, 
+			me.topBuffer - me.tileSize - 10, 
 			'op-*', 
 			function changeOperand() {
 				me.game.sound.play('clickSound');
@@ -142,8 +141,8 @@ Main.prototype = {
 			);
 
 		var divideButton = game.add.button(
-			game.world.centerX + me.tileHeight, 
-			me.topBuffer - me.tileHeight, 
+			game.world.centerX + me.tileSize, 
+			me.topBuffer - me.tileSize - 10, 
 			'op-/', 
 			function changeOperand() {
 				me.game.sound.play('clickSound');
@@ -191,12 +190,12 @@ Main.prototype = {
 		var tileNumber = me.tileNumbers[me.random.integerInRange(0, me.tileNumbers.length -1)];
 
 		// add tile at correct x position, add from top of game to allow slide in
-		var tile = me.tiles.create(me.leftBuffer + (x * me.tileWidth) + me.tileWidth / 2, 0, 'd' + tileNumber);
+		var tile = me.tiles.create(me.leftBuffer + (x * me.tileSize) + me.tileSize / 2, 0, 'd' + tileNumber);
 		tile.frame = 0;
 
 		// animate into position - the 'x' animation is not necessary
 		me.game.add.tween(tile).to(
-			{ y: me.topBuffer + (y * me.tileHeight + (me.tileHeight / 2))},
+			{ y: me.topBuffer + (y * me.tileSize + (me.tileSize / 2))},
 			400, 
 			Phaser.Easing.Quintic.InOut, 
 			true);
@@ -226,8 +225,8 @@ Main.prototype = {
 			var hoverY = me.game.input.y;
 
 			// where does that exist on the theoretical grid
-			var hoverPosX = Math.floor((hoverX - me.leftBuffer) / me.tileWidth);
-			var hoverPosY = Math.floor((hoverY - me.topBuffer) / me.tileHeight);
+			var hoverPosX = Math.floor((hoverX - me.leftBuffer) / me.tileSize);
+			var hoverPosY = Math.floor((hoverY - me.topBuffer) / me.tileSize);
 
 			// check if dragging within game bounds - literally just 'if inside these bounds'
 			if (hoverPosX >= 0 && 
@@ -239,18 +238,18 @@ Main.prototype = {
 				var hoverTile = me.tileGrid[hoverPosX][hoverPosY];
 
 				// get grabbed tile bounds
-				var tileLeftPosition = me.leftBuffer + (hoverPosX * me.tileWidth);
-				var tileRightPosition = me.leftBuffer + (hoverPosX * me.tileWidth) + me.tileWidth;
-				var tileTopPosition = me.topBuffer + (hoverPosY * me.tileHeight);
-				var tileBottomPosition = me.topBuffer + (hoverPosY * me.tileHeight) + me.tileHeight;
+				var tileLeftPosition = me.leftBuffer + (hoverPosX * me.tileSize);
+				var tileRightPosition = me.leftBuffer + (hoverPosX * me.tileSize) + me.tileSize;
+				var tileTopPosition = me.topBuffer + (hoverPosY * me.tileSize);
+				var tileBottomPosition = me.topBuffer + (hoverPosY * me.tileSize) + me.tileSize;
 
-				// if player is hovering over tile, set it active
-				if (!hoverTile.isActive &&
-					hoverX > tileLeftPosition &&
-					hoverX < tileRightPosition &&
-					hoverY > tileTopPosition &&
-					hoverY < tileBottomPosition &&
-					me.currentSum.length < 2) {
+				// if player is hovering over tile, set it active. also make sure they're hovering near center of tile, to allow for diagonal selection.
+				if (!hoverTile.isActive && 
+					hoverX > tileLeftPosition + me.selectableArea && 
+					hoverX < tileRightPosition - me.selectableArea && 
+					hoverY > tileTopPosition + me.selectableArea && 
+					hoverY < tileBottomPosition - me.selectableArea &&
+					me.currentSum.length < 2) {					
 
 					// set tile active, make pink
 					hoverTile.isActive = true;
@@ -324,10 +323,14 @@ Main.prototype = {
 			me.game.state.start("GameOver", true, false, me.score, me.totalTime, me.equationList.length);
 		};
 
-		me.totalTime++;
+		// total time increments in function to allow speedup
+		me.countdown(me.equationList.length);
 
 	}, // end update method
 
+	countdown: function(element) {
+		this.totalTime = this.totalTime + Math.floor(element/5);
+	},
 
 
 	// incorrectSum
@@ -410,7 +413,7 @@ Main.prototype = {
 					me.tileGrid[i][j-1] = null;
 
 					me.game.add.tween(emptyTile).to(
-						{ y: me.topBuffer + (me.tileHeight * j) + (me.tileHeight / 2) }, 
+						{ y: me.topBuffer + (me.tileSize * j) + (me.tileSize / 2) }, 
 						400, 
 						Phaser.Easing.Quintic.InOut, 
 						true);
@@ -448,7 +451,7 @@ Main.prototype = {
 		var me = this;
 
 		me.score +=1;
-		me.scoreText.text = me.score;
+		me.scoreText.text = "Score: " + me.score;
 	}, // end increment score
 
 
@@ -456,15 +459,15 @@ Main.prototype = {
 	// create score
 	createScore: function() {
 		var me = this;
-		var scoreFont = "90px Arial";
+		var scoreFont = "40px Arial";
 
 		me.scoreText = me.game.add.text(
 			me.game.world.centerX, 
-			me.topBuffer + 50 + me.tileGrid.length * me.tileHeight, "0", 
+			me.topBuffer + me.tileGrid.length * me.tileSize, "Score: 0", 
 			{	font: scoreFont, 
-				fill: "#ffffff", 
+				fill: "#efe", 
 				stroke: "#535353", 
-				strokeThickness: 15 }); 
+				strokeThickness: 10 }); 
 
 		me.scoreText.anchor.setTo(0.5, 0);
 		me.scoreText.align = 'center';
@@ -516,7 +519,7 @@ Main.prototype = {
 
 		// define the tween for the floater 
 		var animTween = me.game.add.tween(anim).to(
-			{ x: me.game.world.centerX, y: me.topBuffer + 50 + me.tileGrid.length * me.tileHeight },
+			{ x: me.game.world.centerX, y: me.topBuffer + 50 + me.tileGrid.length * me.tileSize },
 			500,
 			Phaser.Easing.Exponential.In,
 			true);
@@ -531,19 +534,54 @@ Main.prototype = {
 
 
 
+	// animate time
+	animateTime: function(x, y, operator) {
+		var me = this;
+		var animFont = "40px Arial";
+
+		// new label for score animation
+		var anim = me.game.add.text(
+			x, 
+			y, 
+			'+5 seconds', 
+			{	font: animFont, 
+				fill: "#39d179", 
+				stroke: "#3360ce", 
+				strokeThickness: 10});
+
+		anim.anchor.setTo(0.5, 0);
+		anim.align = 'center';
+
+		// define the tween for the floater 
+		var animTween = me.game.add.tween(anim).to(
+			{ x: me.game.world.centerX, y: me.topBuffer + 50 + me.tileGrid.length * me.tileSize },
+			500,
+			Phaser.Easing.Exponential.In,
+			true);
+
+		animTween.onComplete.add(function() {
+			anim.destroy();
+			me.scoreTween.start();
+			me.scoreBuffer += score();
+			me.updateTarget();
+		}, me);
+	}, // end animate time
+
+
+
 	// create target
 	createTargetLabel: function() {
 		var me = this;
-		var targetFont = "50px Arial";
+		var targetFont = "65px Arial";
 
 		me.targetLabel = me.game.add.text(
 			me.game.world.centerX, 
-			me.topBuffer + me.boardHeight, 
+			me.topBuffer - (me.tileSize * 2.25), 
 			"0", 
 			{	font: targetFont, 
-				fill: "#ab9ba9", 
+				fill: "#ffffff", 
 				stroke: "#4d394b", 
-				strokeThickness: 8}); 
+				strokeThickness: 12}); 
 
 		me.targetLabel.anchor.setTo(0.5, 0);
 		me.targetLabel.align = 'center';
@@ -593,7 +631,7 @@ Main.prototype = {
 		// .toFixed to make sure no giant decimal strings, + eval to remove unnecessary zeroes
 		toHitTarget = + eval(buildTargetNumber[0] + buildTargetNumber[1] + buildTargetNumber[2]).toFixed(2);
 
-		me.targetLabel.text = 'Target Number: ' + toHitTarget;
+		me.targetLabel.text = 'Target: ' + toHitTarget;
 	}, // end update target
 
 
