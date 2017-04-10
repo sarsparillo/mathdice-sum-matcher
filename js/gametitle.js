@@ -11,9 +11,13 @@ GameTitle.prototype = {
 		me.startGameTitle();
 		me.descriptor();
 
+		me.tileSize = 85;
+
   		// init start game buttons
   		me.randomOperatorsButton();
   		me.blitzModeButton();
+
+  		me.selectedOperator = '+';
 	},
 
 
@@ -55,7 +59,7 @@ GameTitle.prototype = {
 		me.descriptorText.anchor.setTo(0.5, 0);
 		me.descriptorText.align = 'center';
 
-		me.descriptorText.text = 'Random mode randomly selects an operator for the sum.\nBlitz mode chooses the last operator\n that you selected.';
+		me.descriptorText.text = 'Random mode randomly selects an operator for the sum.\n\nIn Blitz mode, you select the operator, then\ncomplete as many sums as possible!';
 	}, // end descriptor
 
 
@@ -65,11 +69,11 @@ GameTitle.prototype = {
 
 		var button = game.add.button(
 			me.game.world.centerX,
-			me.topBuffer + 90,
+			me.topBuffer + me.tileSize + 30,
 			'randomOperatorsButton',
 			function randomOpStart() {
 				me.game.sound.play('clickSound');
-				me.game.state.start("Main", true, false, "random")
+				me.game.state.start("Main", true, false, "random", "+")
 			},
 			this, 0, 1, 2
 			);
@@ -84,16 +88,72 @@ GameTitle.prototype = {
 
 		var button = game.add.button(
 			me.game.world.centerX,
-			me.topBuffer + 180,
+			me.topBuffer + 35 + (me.tileSize * 2),
 			'blitzModeButton',
 			function blitzStart() {
 				me.game.sound.play('clickSound');
-				me.game.state.start("Main", true, false, "blitz")
+
+				me.blitzModes();
 			},
 			this, 0, 1, 2
 			);
 
 		button.anchor.setTo(0.5, 0.5);
 	}, // end blitz mode game button
+
+	blitzModes: function() {
+		var me = this;
+		var buttonHeight = me.topBuffer + 40 + (me.tileSize * 3),
+			buttonLeft = game.world.centerX - (me.tileSize * 1.5);
+
+
+		var addButton = game.add.button(
+			buttonLeft, 
+			buttonHeight, 
+			'op-+', 
+			function changeOperand() {
+				me.game.sound.play('clickSound');
+				me.game.state.start("Main", true, false, "blitz", "+")
+			},
+			this, 0, 1, 2
+			);
+
+		var subtractButton = game.add.button(
+			buttonLeft + me.tileSize, 
+			buttonHeight, 
+			'op--', 
+			function changeOperand() {
+				me.game.sound.play('clickSound');
+				me.game.state.start("Main", true, false, "blitz", "-")
+			},
+			this, 0, 1, 2
+			);
+
+		var multiplyButton = game.add.button(
+			buttonLeft + (me.tileSize * 2), 
+			buttonHeight, 
+			'op-*', 
+			function changeOperand() {
+				me.game.sound.play('clickSound');
+				me.game.state.start("Main", true, false, "blitz", "*")
+			},
+			this, 0, 1, 2
+			);
+
+		var divideButton = game.add.button(
+			buttonLeft + (me.tileSize * 3), 
+			buttonHeight, 
+			'op-/', 
+			function changeOperand() {
+				me.game.sound.play('clickSound');
+				me.game.state.start("Main", true, false, "blitz", "/")
+			},
+			this, 0, 1, 2
+			);
+		addButton.anchor.setTo(0.5, 0.5);
+		subtractButton.anchor.setTo(0.5, 0.5);
+		multiplyButton.anchor.setTo(0.5, 0.5);
+		divideButton.anchor.setTo(0.5, 0.5);
+	},
 
 }

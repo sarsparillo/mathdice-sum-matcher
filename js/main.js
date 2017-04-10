@@ -3,8 +3,9 @@ var Main = function(game) {};
 Main.prototype = {
 
 	// initialize passable variables
-	init: function(gameMode){
+	init: function(gameMode, operator){
 		this.gamemode = gameMode;
+		this.operand = operator;
 	},
 
 	create: function() {
@@ -53,7 +54,6 @@ Main.prototype = {
 
 		// variables used in sum-making
 		me.currentSum = []; // holds numbers currently being traced
-		me.operand = '+'; // operators as string, will run javascript eval
 		me.toHitTarget = 0; // defines the current target to hit
 
 		// userscore - buffer exists to 'animate' the score growing
@@ -73,8 +73,28 @@ Main.prototype = {
 
 		// define how long the game should last - different time for different gamemodes
 		if (me.gamemode == "blitz") {
-			me.remainingTime = 300000;
-			me.fullTime = 300000;
+			switch (me.operand) {
+				case "+":
+					me.remainingTime = 5000;
+					me.fullTime = 5000;
+					break;
+				case "-":
+					me.remainingTime = 7000;
+					me.fullTime = 7000;
+					break;
+				case "*":
+					me.remainingTime = 7000;
+					me.fullTime = 7000;
+					break;
+				case "/":
+					me.remainingTime = 10000;
+					me.fullTime = 10000;
+					break;
+				default:
+					me.remainingTime = 5000;
+					me.fullTime = 5000;
+					break;
+			} 
 		} 
 		else if (me.gamemode == "random") {
 			me.remainingTime = 5000;
@@ -94,66 +114,74 @@ Main.prototype = {
 		// track total time
 		me.totalTime = 0;
 
-		// buttons at top of screen
-		var addButton = game.add.button(
-			game.world.centerX - (me.tileSize * 2), 
-			me.topBuffer - me.tileSize - 10, 
-			'op-+', 
-			function changeOperand() {
-				me.game.sound.play('clickSound');
-				me.operand = '+';
-				addButton.setFrames(0,0,2);
-				subtractButton.setFrames(0,1,2);
-				multiplyButton.setFrames(0,1,2);
-				divideButton.setFrames(0,1,2);
-			},
-			this, 0, 0, 2
-			);
+		// if random gamemode, add buttons
+		if (me.gamemode == "random") {
+			// buttons at top of screen
+			var addButton = game.add.button(
+				game.world.centerX - (me.tileSize * 2), 
+				me.topBuffer - me.tileSize - 10, 
+				'op-+', 
+				function changeOperand() {
+					me.game.sound.play('clickSound');
+					me.operand = '+';
+					addButton.setFrames(0,0,2);
+					subtractButton.setFrames(0,1,2);
+					multiplyButton.setFrames(0,1,2);
+					divideButton.setFrames(0,1,2);
+				},
+				this, 0, 0, 2
+				);
 
-		var subtractButton = game.add.button(
-			game.world.centerX - me.tileSize, 
-			me.topBuffer - me.tileSize - 10, 
-			'op--', 
-			function changeOperand() {
-				me.game.sound.play('clickSound');
-				me.operand = '-';
-				addButton.setFrames(0,1,2);
-				subtractButton.setFrames(0,0,2);
-				multiplyButton.setFrames(0,1,2);
-				divideButton.setFrames(0,1,2);
-			},
-			this, 0, 1, 2
-			);
+			var subtractButton = game.add.button(
+				game.world.centerX - me.tileSize, 
+				me.topBuffer - me.tileSize - 10, 
+				'op--', 
+				function changeOperand() {
+					me.game.sound.play('clickSound');
+					me.operand = '-';
+					addButton.setFrames(0,1,2);
+					subtractButton.setFrames(0,0,2);
+					multiplyButton.setFrames(0,1,2);
+					divideButton.setFrames(0,1,2);
+				},
+				this, 0, 1, 2
+				);
 
-		var multiplyButton = game.add.button(
-			game.world.centerX, 
-			me.topBuffer - me.tileSize - 10, 
-			'op-*', 
-			function changeOperand() {
-				me.game.sound.play('clickSound');
-				me.operand = '*';
-				addButton.setFrames(0,1,2);
-				subtractButton.setFrames(0,1,2);
-				multiplyButton.setFrames(0,0,2);
-				divideButton.setFrames(0,1,2);
-			},
-			this, 0, 1, 2
-			);
+			var multiplyButton = game.add.button(
+				game.world.centerX, 
+				me.topBuffer - me.tileSize - 10, 
+				'op-*', 
+				function changeOperand() {
+					me.game.sound.play('clickSound');
+					me.operand = '*';
+					addButton.setFrames(0,1,2);
+					subtractButton.setFrames(0,1,2);
+					multiplyButton.setFrames(0,0,2);
+					divideButton.setFrames(0,1,2);
+				},
+				this, 0, 1, 2
+				);
 
-		var divideButton = game.add.button(
-			game.world.centerX + me.tileSize, 
-			me.topBuffer - me.tileSize - 10, 
-			'op-/', 
-			function changeOperand() {
-				me.game.sound.play('clickSound');
-				me.operand = '/';
-				addButton.setFrames(0,1,2);
-				subtractButton.setFrames(0,1,2);
-				multiplyButton.setFrames(0,1,2);
-				divideButton.setFrames(0,0,2);
-			},
-			this, 0, 1, 2
-			);
+			var divideButton = game.add.button(
+				game.world.centerX + me.tileSize, 
+				me.topBuffer - me.tileSize - 10, 
+				'op-/', 
+				function changeOperand() {
+					me.game.sound.play('clickSound');
+					me.operand = '/';
+					addButton.setFrames(0,1,2);
+					subtractButton.setFrames(0,1,2);
+					multiplyButton.setFrames(0,1,2);
+					divideButton.setFrames(0,0,2);
+				},
+				this, 0, 1, 2
+				);
+		} else if (me.gamemode == "blitz") {
+			game.add.sprite(
+				game.world.centerX - (me.tileSize / 2),
+				me.topBuffer - me.tileSize - 10,
+				"op-" + me.operand)
+		}
 
 	}, // end create method
 
@@ -293,7 +321,7 @@ Main.prototype = {
 						me.equationList.push(buildSum[0] + buildSum[2] + buildSum[1]);
 						// remove current sum
 						me.removeTile(me.currentSum);
-						me.remainingTime += 400;
+						if (me.gamemode == "random") { me.remainingTime += 400 };
 						me.resetTile();
 						me.getNewTiles();
 						console.log(me.equationList);
@@ -531,41 +559,6 @@ Main.prototype = {
 			me.updateTarget();
 		}, me);
 	}, // end create score animation
-
-
-
-	// animate time
-	animateTime: function(x, y, operator) {
-		var me = this;
-		var animFont = "40px Arial";
-
-		// new label for score animation
-		var anim = me.game.add.text(
-			x, 
-			y, 
-			'+5 seconds', 
-			{	font: animFont, 
-				fill: "#39d179", 
-				stroke: "#3360ce", 
-				strokeThickness: 10});
-
-		anim.anchor.setTo(0.5, 0);
-		anim.align = 'center';
-
-		// define the tween for the floater 
-		var animTween = me.game.add.tween(anim).to(
-			{ x: me.game.world.centerX, y: me.topBuffer + 50 + me.tileGrid.length * me.tileSize },
-			500,
-			Phaser.Easing.Exponential.In,
-			true);
-
-		animTween.onComplete.add(function() {
-			anim.destroy();
-			me.scoreTween.start();
-			me.scoreBuffer += score();
-			me.updateTarget();
-		}, me);
-	}, // end animate time
 
 
 
