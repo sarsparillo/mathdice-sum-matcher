@@ -1,6 +1,13 @@
 var GameTitle = function(game){};
 
 GameTitle.prototype = {
+	//global scale ratio
+	scaleRatio: '',
+
+	// initialize 
+	init: function(){
+		scaleRatio = game.scaleRatio;
+	},
 
 	create: function(){
   		var me = this;
@@ -11,7 +18,7 @@ GameTitle.prototype = {
 		me.startGameTitle();
 		me.descriptor();
 
-		me.tileSize = 85;
+		me.tileSize = 85 * scaleRatio;
 
   		// init start game buttons
   		me.randomOperatorsButton();
@@ -24,28 +31,28 @@ GameTitle.prototype = {
 	// display title text
 	startGameTitle: function() {
 		var me = this;
-		var gameOverFont = "50px Arial";
+		var gameTitleFont = 150 * scaleRatio + "px Arial";
 
-		me.gameOverTitleText = me.game.add.text(
+		me.gameTitleText = me.game.add.text(
 			me.game.world.centerX, 
 			me.topBuffer - 120, 
 			"0", 
-			{	font: gameOverFont, 
+			{	font: gameTitleFont, 
 				fill: "#8DACFF", 
 				stroke: "#0D3AAA", 
 				strokeThickness: 5 }); 
 
-		me.gameOverTitleText.anchor.setTo(0.5, 0);
-		me.gameOverTitleText.align = 'center';
+		me.gameTitleText.anchor.setTo(0.5, 0);
+		me.gameTitleText.align = 'center';
 
-		me.gameOverTitleText.text = 'MathDice Sum Matcher';
+		me.gameTitleText.text = 'MathDice Sum Matcher';
 	}, // end create title
 
 
 	// display descriptor
 	descriptor: function() {
 		var me = this;
-		var descFont = "20px Arial";
+		var descFont = 60 * scaleRatio + "px Arial";
 
 		me.descriptorText = me.game.add.text(
 			me.game.world.centerX, 
@@ -78,6 +85,8 @@ GameTitle.prototype = {
 			this, 0, 1, 2
 			);
 
+		button.scale.setTo(scaleRatio, scaleRatio);
+
 		button.anchor.setTo(0.5, 0.5);
 	}, // end random operators game button
 
@@ -99,6 +108,7 @@ GameTitle.prototype = {
 			);
 
 		button.anchor.setTo(0.5, 0.5);
+		button.scale.setTo(scaleRatio, scaleRatio);
 	}, // end blitz mode game button
 
 	blitzModes: function() {
@@ -154,6 +164,10 @@ GameTitle.prototype = {
 		subtractButton.anchor.setTo(0.5, 0.5);
 		multiplyButton.anchor.setTo(0.5, 0.5);
 		divideButton.anchor.setTo(0.5, 0.5);
+		addButton.scale.setTo(scaleRatio, scaleRatio);
+		subtractButton.scale.setTo(scaleRatio, scaleRatio);
+		multiplyButton.scale.setTo(scaleRatio, scaleRatio);
+		divideButton.scale.setTo(scaleRatio, scaleRatio);
 	},
 
 }
