@@ -1,16 +1,12 @@
 var Main = function(game) {};
 
 Main.prototype = {
-	//global scale ratio
-	scaleRatio: '',
 
 	// initialize passable variables
 	init: function(gameMode, operator){
 		this.gamemode = gameMode;
 		this.operand = operator;
-		scaleRatio = game.scaleRatio;
 	},
-
 
 	create: function() {
 
@@ -36,10 +32,8 @@ Main.prototype = {
 			[null, null, null, null, null]
 		];
 
-		console.log(scaleRatio);
-
 		// define tile width and height, as well as select buffer for diagonals
-		me.tileSize = 85 * scaleRatio;
+		me.tileSize = 85;
 		me.selectableArea = me.tileSize / 8;
 
 		// group to hold tiles
@@ -81,30 +75,30 @@ Main.prototype = {
 		if (me.gamemode == "blitz") {
 			switch (me.operand) {
 				case "+":
-					me.remainingTime = 6000;
-					me.fullTime = 6000;
+					me.remainingTime = 5000;
+					me.fullTime = 5000;
 					break;
 				case "-":
-					me.remainingTime = 9000;
-					me.fullTime = 9000;
+					me.remainingTime = 7000;
+					me.fullTime = 7000;
 					break;
 				case "*":
-					me.remainingTime = 9000;
-					me.fullTime = 9000;
+					me.remainingTime = 7000;
+					me.fullTime = 7000;
 					break;
 				case "/":
-					me.remainingTime = 12000;
-					me.fullTime = 12000;
+					me.remainingTime = 10000;
+					me.fullTime = 10000;
 					break;
 				default:
-					me.remainingTime = 6000;
-					me.fullTime = 6000;
+					me.remainingTime = 5000;
+					me.fullTime = 5000;
 					break;
 			} 
 		} 
 		else if (me.gamemode == "random") {
-			me.remainingTime = 6000;
-			me.fullTime = 6000;
+			me.remainingTime = 5000;
+			me.fullTime = 5000;
 		}
 
 		// start the timer going
@@ -137,7 +131,6 @@ Main.prototype = {
 				},
 				this, 0, 0, 2
 				);
-			addButton.scale.setTo(scaleRatio, scaleRatio);
 
 			var subtractButton = game.add.button(
 				game.world.centerX - me.tileSize, 
@@ -153,7 +146,6 @@ Main.prototype = {
 				},
 				this, 0, 1, 2
 				);
-			subtractButton.scale.setTo(scaleRatio, scaleRatio);
 
 			var multiplyButton = game.add.button(
 				game.world.centerX, 
@@ -169,7 +161,6 @@ Main.prototype = {
 				},
 				this, 0, 1, 2
 				);
-			multiplyButton.scale.setTo(scaleRatio, scaleRatio);
 
 			var divideButton = game.add.button(
 				game.world.centerX + me.tileSize, 
@@ -185,13 +176,11 @@ Main.prototype = {
 				},
 				this, 0, 1, 2
 				);
-			divideButton.scale.setTo(scaleRatio, scaleRatio);
 		} else if (me.gamemode == "blitz") {
-			var topOperator = game.add.sprite(
+			game.add.sprite(
 				game.world.centerX - (me.tileSize / 2),
 				me.topBuffer - me.tileSize - 10,
-				"op-" + me.operand);
-			topOperator.scale.setTo(scaleRatio, scaleRatio);
+				"op-" + me.operand)
 		}
 
 	}, // end create method
@@ -245,9 +234,6 @@ Main.prototype = {
 		// keep track of tile added
 		tile.tileNumber = tileNumber;
 
-		// keep scaled to pixel ratio
-		tile.scale.setTo(scaleRatio, scaleRatio);
-
 		return tile;
 
 	}, // end addTile method
@@ -291,7 +277,7 @@ Main.prototype = {
 					hoverX < tileRightPosition - me.selectableArea && 
 					hoverY > tileTopPosition + me.selectableArea && 
 					hoverY < tileBottomPosition - me.selectableArea &&
-					me.currentSum.length < 2) {			
+					me.currentSum.length < 2) {					
 
 					// set tile active, make pink
 					hoverTile.isActive = true;
@@ -304,11 +290,7 @@ Main.prototype = {
 					// push tile to current sum
 					me.currentSum.push(hoverTile);
 
-				}
-				// 'undo' - allow player to scroll back one 
-				else if (hoverTile.isActive && me.currentSum.length == 2) {
-
-				}// end if hovering
+				} // end if hovering
 
 			} // end if inside bounds check
 
@@ -517,7 +499,6 @@ Main.prototype = {
 
 		me.scoreText.anchor.setTo(0.5, 0);
 		me.scoreText.align = 'center';
-		me.scoreText.scale.setTo(scaleRatio, scaleRatio);
 
 		// define the tween when 'hit' with a new score
 		me.scoreTween = me.add.tween(me.scoreText.scale).to(
@@ -597,8 +578,6 @@ Main.prototype = {
 
 		me.targetLabel.anchor.setTo(0.5, 0);
 		me.targetLabel.align = 'center';
-		me.targetLabel.scale.setTo(scaleRatio, scaleRatio);
-
 	}, // end create target label
 
 

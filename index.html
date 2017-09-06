@@ -22,8 +22,6 @@
 
 				//Create a new game that fills the screen
 				game = new Phaser.Game(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, Phaser.AUTO);
-
-				game.scaleRatio = window.devicePixelRatio / 3;
 				
 				//Add all states
 				game.state.add("Boot", Boot);
