@@ -1,5 +1,4 @@
 var GameOver = function(game){};
-
 GameOver.prototype = {
 
 	// initialize passable variables
@@ -7,13 +6,14 @@ GameOver.prototype = {
 		this.score = endScore;
 		this.time = Math.round(endTime / 60);
 		this.correct = wins;
+		scaleRatio = game.scaleRatio;
 	},
 
   	create: function(){
   		var me = this;
 
 		me.game.stage.backgroundColor = "e1e4ea";
-		me.topBuffer = me.game.height / 3;
+		me.topBuffer = (me.game.height / 3) * scaleRatio;
 
 		me.gameOverTitle();
   		me.displayScore();
@@ -29,7 +29,7 @@ GameOver.prototype = {
 	// display title
 	gameOverTitle: function() {
 		var me = this;
-		var gameOverFont = "110px Arial";
+		var gameOverFont = 330 * scaleRatio + "px Arial";
 
 		me.gameOverTitleText = me.game.add.text(
 			me.game.world.centerX, 
@@ -49,7 +49,7 @@ GameOver.prototype = {
 	// display score
 	displayScore: function() {
 		var me = this;
-		var scoreFont = "80px Arial";
+		var scoreFont = 240 * scaleRatio + "px Arial";
 
 		me.scoreText = me.game.add.text(
 			me.game.world.centerX, 
@@ -69,7 +69,7 @@ GameOver.prototype = {
 	// display time
 	displayTime: function() {
 		var me = this;
-		var timeFont = "30px Arial";
+		var timeFont = 90 * scaleRatio + "px Arial";
 
 		me.timeText = me.game.add.text(
 			me.game.world.centerX, 
@@ -103,6 +103,7 @@ GameOver.prototype = {
 			);
 
 		button.anchor.setTo(0.5, 0.5);
+		button.scale.setTo(scaleRatio, scaleRatio);
 	} // end restart game button
 	
 }
