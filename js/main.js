@@ -31,18 +31,19 @@ Main.prototype = {
 		// init grid
 		this.tileGrid = [];
 
-		// define tile selection buffer for diagonal lines
-		this.tileSelectionBuffer = MathDice.Params.diceSize / 8;
+		// init tile size
+		this.diceSize = MathDice.Params.diceSize;
+		this.operatorSize = MathDice.Params.operatorSize;
 
-		// keep a reference to grid width/height
-		this.boardWidth = MathDice.Params.gridSize.rows * MathDice.Params.diceSize;
-		this.boardHeight = MathDice.Params.gridSize.cols * MathDice.Params.diceSize;
+		// define tile selection buffer for diagonal lines
+		this.tileSelectionBuffer = this.diceSize / 8;
+
+		// keep a reference to grid size. grid is ALWAYS square.
+		this.gridSize = MathDice.Params.gridSize.rows * this.diceSize;
 
 		// also keep a buffer for centering
-		this.leftMargin = (this.game.width - this.boardWidth) / 2;
+		this.leftMostGridPoint = this.world.centerX - (this.gridSize / 2);
 		this.headerMargin = this.headerBar.height + MathDice.Params.padding;
-
-		this.leftButton = this.leftMargin - (250 * 1.0);
 
 		// keep track if the player is currently drawing a sum
 		this.guessing = false;
@@ -64,7 +65,7 @@ Main.prototype = {
 		this.initTiles();
 		this.createScore();
 		this.createTargetLabel();
-		this.updateTarget();
+		this.updateTargetNumber();
 		
 
 		// define how long the game should last - different time for different gamemodes
@@ -155,7 +156,11 @@ Main.prototype = {
 		// if height to width ratio is less than 1, put layout in landscape mode
 		var landscape = height / width < 1?true:false;
 
+		// basic sizing no matter what orientation
 		this.headerMargin = this.headerBar.height + MathDice.Params.padding;
+		this.gridSize = this.diceSize * 5;
+		this.leftMostGridPoint = (this.game.width - this.gridSize) / 2;
+
 		this.scaleHeader(width, height);
 		this.scaleTiles(width, height, landscape);
 		this.positionUI(width, height, landscape);
@@ -170,20 +175,88 @@ Main.prototype = {
 		this.headerLogo.x = this.world.centerX;
 	}, // end scale header
 
+
 	// scale tiles; landscape should just adjust top margin
 	scaleTiles: function(width, height, landscape) {
-		var availableGridSize = Math.min(width, height - this.headerMargin);
-		this.calculatedTileSize = availableGridSize / 5;
+		this.tiles.x = this.leftMostGridPoint;
+		var availableGridSpace = Math.min(width - this.diceSize, height - this.headerMargin * 2);
+
+		this.diceSize = availableGridSpace / 5;
+		this.tiles.y = this.headerMargin;
+
+		for (var i=0; i < MathDice.Params.gridSize.rows; i++) {
+			for (var j=0; j < MathDice.Params.gridSize.cols; j++) {
+				this.scaleSprite(this.tileGrid[i][j], this.diceSize, this.diceSize, 0, 1);
+				this.tileGrid[i][j].x = i * this.diceSize + this.diceSize / 2;
+				this.tileGrid[i][j].y = j * this.diceSize + this.diceSize / 2;
+			}
+		}
+
+
+		if (landscape) {
+			// landscape vertical position of grid position code here
+		} else {
+			// portrait vertical position of grid position code here
+		}
 
 	}, // end scale tiles
 
+
 	// position UI; landscape will drastically change where the various bits and pieces exist
 	positionUI: function(width, height, landscape) {
-		if (landscape) {
-			console.log("Landscape!");
-		} else {
-			console.log("Portrait!");
-		}
+		//if (landscape) {
+
+			// landscape margins
+			var leftColumn = this.leftMostGridPoint - this.diceSize * 2;
+			var rightColumn = this.leftMostGridPoint + this.gridSize + this.diceSize * 2;
+
+			// scale timer
+			this.scaleSprite(this.timerSprite, width, height - this.headerMargin, 0, 1);
+			this.timerSprite.x = rightColumn;
+			this.timerSprite.y = this.game.height - this.headerMargin - (this.diceSize * 2);
+
+			// move score
+			this.scoreText.x = rightColumn;
+			this.scoreText.y = this.timerSprite.y + this.timerSprite.height;
+
+			// move target dice
+			this.scaleSprite(this.targetDice, this.diceSize * 2, height, 0, 1);
+			this.targetLabel.x = leftColumn;
+			this.targetLabel.y = this.headerMargin;
+			this.targetDice.x = this.targetLabel.x;
+			this.targetDice.y = this.targetLabel.y + this.targetLabel.height;
+			this.targetNumber.x = this.targetDice.x;
+			this.targetNumber.y = this.targetDice.y + this.targetDice.height / 2;
+
+			this.operatorSize = this.diceSize * 0.9;
+
+			// move operators
+			if (this.gamemode == "classic") {
+
+				this.scaleSprite(this.addButton, this.operatorSize, this.operatorSize, 0, 1);
+				this.addButton.x = leftColumn;
+				this.addButton.y = this.headerMargin + this.gridSize - this.operatorSize;
+
+				this.scaleSprite(this.subtractButton, this.operatorSize, this.operatorSize, 0, 1);
+				this.subtractButton.x = this.addButton.x;
+				this.subtractButton.y = this.addButton.y;
+
+				this.scaleSprite(this.multiplyButton, this.operatorSize, this.operatorSize, 0, 1);
+				this.multiplyButton.x = this.addButton.x;
+				this.multiplyButton.y = this.addButton.y;
+
+				this.scaleSprite(this.divideButton, this.operatorSize, this.operatorSize, 0, 1);
+				this.divideButton.x = this.addButton.x;
+				this.divideButton.y = this.addButton.y;
+				
+				this.buttonsLabel.x = this.addButton.x;
+				this.buttonsLabel.y = this.addButton.y - this.operatorSize - 35;
+
+			}
+
+	//	} else {
+	//		console.log("Portrait!");
+	//	} 
 	}, // end position ui
 
 
@@ -192,15 +265,15 @@ Main.prototype = {
 	initTiles: function() {
 		// group to hold all tiles
 		this.tiles = this.game.add.group();
-		this.tiles.x = this.leftMargin;
+		this.tiles.x = this.leftMostGridPoint;
 		this.tiles.y = this.headerMargin;
 		
 		// loop through grid and place tile at positions
 		for (var i=0; i < MathDice.Params.gridSize.rows; i++) {
 			this.tileGrid[i] = [];
 			for (var j=0; j < MathDice.Params.gridSize.cols; j++) {
-				var tile = this.createTile(i, j);
 
+				var tile = this.createTile(i, j);
 				// keep track of positions in tileGrid
 				this.tileGrid[i][j] = tile;
 			}
@@ -215,16 +288,15 @@ Main.prototype = {
 		var tileNumber = this.tileNumbers[this.random.integerInRange(0, this.tileNumbers.length -1)];
 
 		// add tile at correct x position, add from top of game to allow slide in
-		var tile = this.tiles.create(x * this.calculatedTileSize + this.calculatedTileSize / 2, 0, 'd' + tileNumber);
-		tile.frame = 1;
-		tile.tileNumber = tileNumber;
-		tile.anchor.setTo(0.5);
-		// make sure tile is the right size
-		this.scaleSprite(tile, this.calculatedTileSize, this.calculatedTileSize, 0, 1);
+		var tile = this.tiles.create(x * this.diceSize + this.diceSize / 2, 0, 'd' + tileNumber);
+			tile.frame = 1;
+			tile.tileNumber = tileNumber;
+
+			tile.anchor.setTo(0.5);
 
 		// animate into position
 		this.game.add.tween(tile).to(
-			{ y: (y * this.calculatedTileSize + this.calculatedTileSize / 2) },
+			{ y: (y * this.diceSize + this.diceSize / 2) },
 			400, 
 			Phaser.Easing.Quintic.InOut, 
 			true);
@@ -244,8 +316,8 @@ Main.prototype = {
 			var cursorLocationY = this.game.input.y;
 
 			// where does that exist on the theoretical grid
-			var gridLocationX = Math.floor((cursorLocationX - this.leftMargin) / MathDice.Params.diceSize);
-			var gridLocationY = Math.floor((cursorLocationY - this.headerMargin) / MathDice.Params.diceSize);
+			var gridLocationX = Math.floor((cursorLocationX - this.leftMostGridPoint) / this.diceSize);
+			var gridLocationY = Math.floor((cursorLocationY - this.headerMargin) / this.diceSize);
 			console.log(gridLocationX + " " + gridLocationY);
 			// check if dragging within game bounds - literally just 'if inside these bounds'
 			if (gridLocationX >= 0 && 
@@ -257,10 +329,10 @@ Main.prototype = {
 				var activeTile = this.tileGrid[gridLocationX][gridLocationY];
 
 				// get grabbed tile bounds and add a buffer. getbounds doesn't allow easy buffers
-				var tileLeftBounds = this.leftMargin + (gridLocationX * MathDice.Params.diceSize) + this.tileSelectionBuffer;
-				var tileRightBounds = this.leftMargin + (gridLocationX * MathDice.Params.diceSize) + MathDice.Params.diceSize - this.tileSelectionBuffer;
-				var tileTopBounds = this.headerMargin + (gridLocationY * MathDice.Params.diceSize) + this.tileSelectionBuffer;
-				var tileBottomBounds = this.headerMargin + (gridLocationY * MathDice.Params.diceSize) + MathDice.Params.diceSize - this.tileSelectionBuffer;
+				var tileLeftBounds = this.leftMostGridPoint + (gridLocationX * this.diceSize) + this.tileSelectionBuffer;
+				var tileRightBounds = this.leftMostGridPoint + (gridLocationX * this.diceSize) + this.diceSize - this.tileSelectionBuffer;
+				var tileTopBounds = this.headerMargin + (gridLocationY * this.diceSize) + this.tileSelectionBuffer;
+				var tileBottomBounds = this.headerMargin + (gridLocationY * this.diceSize) + this.diceSize - this.tileSelectionBuffer;
 
 				// if player is hovering over tile, set it active. also, there's margin checks for each tile (because of the getbounds buffer thing).
 				if (!activeTile.isActive && 
@@ -371,7 +443,7 @@ Main.prototype = {
 				this.remainingTime -= 5;
 				break;
 		} 
-//		this.updateTarget();
+//		this.updateTargetNumber();
 	}, // end incorrect sum
 
 
@@ -420,21 +492,19 @@ Main.prototype = {
 
 	// moves tiles left on the board to their new position
 	resetTile: function() {
-
 		for (var i = 0; i < this.tileGrid.length; i++) {
 			// loop from bottom to top to allow for gravity
 			for (var j = this.tileGrid[i].length - 1; j > 0; j--) {
 
 				// if this space is blank, but the one above it is not, the one above down
 				if(this.tileGrid[i][j] == null && this.tileGrid[i][j-1] != null) {
-					
 					// making empty tile to handle empty spaces
 					var emptyTile = this.tileGrid[i][j-1];
 					this.tileGrid[i][j] = emptyTile;
 					this.tileGrid[i][j-1] = null;
 
 					this.game.add.tween(emptyTile).to(
-						{ y: MathDice.Params.diceSize * j + MathDice.Params.diceSize / 2 }, 
+						{ y: this.diceSize * j + this.diceSize / 2 }, 
 						400, 
 						Phaser.Easing.Quintic.InOut, 
 						true);
@@ -448,15 +518,14 @@ Main.prototype = {
 
 
 	// create new tiles in empty spaces
-	getNewTiles: function() {		
-
+	getNewTiles: function() {
 		for (var i = 0; i < this.tileGrid.length; i++) {
-			for (var j = 0; j < this.tileGrid.length; j++) {
-				
+			for (var j = 0; j < this.tileGrid.length; j++) {				
 				// if blank space found, make new tile at space above board
 				if (this.tileGrid[i][j] == null) {
 					var tile = this.createTile(i, j);
 					this.tileGrid[i][j] = tile;
+					tile.anchor.setTo(0.5);
 				}
 			}
 		}
@@ -464,89 +533,8 @@ Main.prototype = {
 
 
 
-	// create dice buttons
-	createButtons: function() {
-
-		// if random gamemode, add buttons
-		if (this.gamemode == "classic") {
-			// buttons at top of screen
-			var addButton = game.add.button(
-				this.leftButton, 
-				this.headerMargin + this.boardHeight - (214 * 1.0), 
-				'op-+', 
-				function changeOperand() {
-					this.game.sound.play('clickSound');
-					this.operand = '+';
-					addButton.setFrames(1,1,1);
-					subtractButton.setFrames(1,0,1);
-					multiplyButton.setFrames(1,0,1);
-					divideButton.setFrames(1,0,1);
-				},
-				this, 1, 1, 1
-				);
-			addButton.scale.setTo(1.0, 1.0);
-
-			var subtractButton = game.add.button(
-				this.leftButton + (109 * 1.0), 
-				this.headerMargin + this.boardHeight - (214 * 1.0), 
-				'op--', 
-				function changeOperand() {
-					this.game.sound.play('clickSound');
-					this.operand = '-';
-					addButton.setFrames(1,0,1);
-					subtractButton.setFrames(1,1,1);
-					multiplyButton.setFrames(1,0,1);
-					divideButton.setFrames(1,0,1);
-				},
-				this, 1, 0, 1
-				);
-			subtractButton.scale.setTo(1.0, 1.0);
-
-			var multiplyButton = game.add.button(
-				this.leftButton, 
-				this.headerMargin + this.boardHeight - (107 * 1.0), 
-				'op-*', 
-				function changeOperand() {
-					this.game.sound.play('clickSound');
-					this.operand = '*';
-					addButton.setFrames(1,0,1);
-					subtractButton.setFrames(1,0,1);
-					multiplyButton.setFrames(1,1,1);
-					divideButton.setFrames(1,0,1);
-				},
-				this, 1, 0, 1
-				);
-			multiplyButton.scale.setTo(1.0, 1.0);
-
-			var divideButton = game.add.button(
-				this.leftButton + (109 * 1.0), 
-				this.headerMargin + this.boardHeight - (107 * 1.0), 
-				'op-/', 
-				function changeOperand() {
-					this.game.sound.play('clickSound');
-					this.operand = '/';
-					addButton.setFrames(1,0,1);
-					subtractButton.setFrames(1,0,1);
-					multiplyButton.setFrames(1,0,1);
-					divideButton.setFrames(1,1,1);
-				},
-				this, 1, 0, 1
-				);
-			divideButton.scale.setTo(1.0, 1.0);
-		} else if (this.gamemode == "blitz") {
-			var topOperator = game.add.sprite(
-				game.world.centerX - (MathDice.Params.diceSize / 2),
-				this.headerMargin + this.boardHeight - (107 * 1.0),
-				"op-" + this.operand);
-			topOperator.scale.setTo(1.0, 1.0);
-		}
-	}, // end create buttons
-
-
-
 	// add to score
 	incrementScore: function() {
-
 		this.score +=1;
 		this.scoreText.text = "Score: " + this.score;
 	}, // end increment score
@@ -555,19 +543,16 @@ Main.prototype = {
 
 	// create score
 	createScore: function() {
-		var scoreFont = "40px Arial";
+		var scoreFont = "40px 'Yanone Kaffeesatz', sans-serif";
 
 		this.scoreText = this.game.add.text(
-			this.game.world.centerX, 
-			this.headerMargin + this.tileGrid.length * MathDice.Params.diceSize, "Score: 0", 
+			this.leftMostGridPoint + this.gridSize + this.diceSize, 
+			this.headerMargin + this.gridSize, "Score: 0", 
 			{	font: scoreFont, 
-				fill: "#efe", 
-				stroke: "#535353", 
-				strokeThickness: 10 }); 
+				fill: "#fff" }); 
 
 		this.scoreText.anchor.setTo(0.5, 0);
 		this.scoreText.align = 'center';
-		this.scoreText.scale.setTo(1.0, 1.0);
 
 		// define the tween when 'hit' with a new score
 		this.scoreTween = this.add.tween(this.scoreText.scale).to(
@@ -583,7 +568,7 @@ Main.prototype = {
 
 	// create score popup animation
 	animateScore: function(x, y, operator) {
-		var animFont = "50px Arial";
+		var animFont = "50px 'Yanone Kaffeesatz', sans-serif";
 
 		function score() {
 			 switch (operator) {
@@ -609,8 +594,9 @@ Main.prototype = {
 		anim.align = 'center';
 
 		// define the tween for the floater 
-		var animTween = this.game.add.tween(anim).to(
-			{ x: this.game.world.centerX, y: this.headerMargin + 50 + this.tileGrid.length * MathDice.Params.diceSize },
+		var animTween = this.game.add.tween(anim).to({ 
+			x: this.world.centerX + (this.diceSize * 3.5), 
+			y: this.headerMargin + MathDice.Params.padding + this.gridSize },
 			500,
 			Phaser.Easing.Exponential.In,
 			true);
@@ -619,7 +605,7 @@ Main.prototype = {
 			anim.destroy();
 			this.scoreTween.start();
 			this.scoreBuffer += score();
-			this.updateTarget();
+			this.updateTargetNumber();
 		}, this);
 	}, // end create score animation
 
@@ -627,32 +613,35 @@ Main.prototype = {
 
 	// create target
 	createTargetLabel: function() {
-		var targetFont = "80px Arial";
-		var targetPosition = this.leftMargin - (300 * 1.0);
-		var targetDice = this.game.add.sprite(targetPosition, this.headerMargin, 'targetDice');
-		targetDice.scale.setTo(1.0, 1.0);
-
-
-
 		this.targetLabel = this.game.add.text(
-			targetPosition + 64, 
-			this.headerMargin + 65, 
-			"0", 
-			{	font: targetFont, 
+			0, 0, "Target:", 
+			{	font: "35px 'Yanone Kaffeesatz', sans-serif", 
+				fill: "#fff" }); 
+		this.targetLabel.x = this.leftMostGridPoint - MathDice.Params.targetDiceSize;
+		this.targetLabel.y = this.headerMargin;
+		this.targetLabel.anchor.setTo(0.5, 0);
+
+		this.targetDice = this.game.add.sprite(0, 0, 'targetDice');
+		this.targetDice.x = this.targetLabel.x;
+		this.targetDice.y = this.targetLabel.y + this.targetLabel.height;
+		this.targetDice.anchor.setTo(0.5, 0);
+
+		this.targetNumber = this.game.add.text(
+			0, 0, "0", 
+			{	font: "50px 'Yanone Kaffeesatz', sans-serif", 
 				fill: "#4d394b", 
 				stroke: "#4d394b", 
 				strokeThickness: 4}); 
-
-		this.targetLabel.anchor.setTo(0.5, 0.5);
-		this.targetLabel.align = 'center';
-		this.targetLabel.scale.setTo(1.0, 1.0);
-
+		this.targetNumber.align = 'center';
+		this.targetNumber.x = this.targetDice.x;
+		this.targetNumber.y = this.targetDice.y + this.targetDice.height / 2;
+		this.targetNumber.anchor.setTo(0.5);
 	}, // end create target label
 
 
 
 	// get new target
-	updateTarget: function() {
+	updateTargetNumber: function() {
 		var buildTargetNumber = '';
 		
 		// pick a tile at random
@@ -666,12 +655,8 @@ Main.prototype = {
 		var operandIndex = Math.floor(Math.random() * this.operators.length);
 
 		// set up new score type based on gamemode
-		if (this.gamemode == "blitz") {
-			buildTargetNumber += this.operand;	
-		} 
-		else if (this.gamemode == "classic") {
-			buildTargetNumber += this.operators[operandIndex];
-		}
+		if (this.gamemode == "blitz") { buildTargetNumber += this.operand; } 
+		else if (this.gamemode == "classic") { buildTargetNumber += this.operators[operandIndex]; }
 
 
 		// pick a connected tile to the selected tile
@@ -692,8 +677,98 @@ Main.prototype = {
 		// .toFixed to make sure no giant decimal strings, + eval to remove unnecessary zeroes
 		targetToHit = + eval(buildTargetNumber[0] + buildTargetNumber[1] + buildTargetNumber[2]).toFixed(2);
 
-		this.targetLabel.text = targetToHit;
+		this.targetNumber.text = targetToHit;
 	}, // end update target
+
+
+
+	// create dice buttons
+	createButtons: function() {
+
+		// if random gamemode, add buttons
+		if (this.gamemode == "classic") {
+			// buttons at top of screen
+			this.addButton = game.add.button(
+				this.targetLabel.x, 
+				this.headerMargin + this.gridSize - this.operatorSize, 
+				'op-+', 
+				function changeOperand() {
+					this.game.sound.play('clickSound');
+					this.operand = '+';
+					this.addButton.setFrames(1,1,1);
+					this.subtractButton.setFrames(1,0,1);
+					this.multiplyButton.setFrames(1,0,1);
+					this.divideButton.setFrames(1,0,1);
+				},
+				this, 1, 1, 1
+				);
+			this.addButton.anchor.setTo(1, 1);
+
+			this.subtractButton = game.add.button(
+				this.addButton.x, 
+				this.addButton.y, 
+				'op--', 
+				function changeOperand() {
+					this.game.sound.play('clickSound');
+					this.operand = '-';
+					this.addButton.setFrames(1,0,1);
+					this.subtractButton.setFrames(1,1,1);
+					this.multiplyButton.setFrames(1,0,1);
+					this.divideButton.setFrames(1,0,1);
+				},
+				this, 1, 0, 1
+				);
+			this.subtractButton.anchor.setTo(0, 1);
+
+			this.multiplyButton = game.add.button(
+				this.addButton.x, 
+				this.addButton.y, 
+				'op-*', 
+				function changeOperand() {
+					this.game.sound.play('clickSound');
+					this.operand = '*';
+					this.addButton.setFrames(1,0,1);
+					this.subtractButton.setFrames(1,0,1);
+					this.multiplyButton.setFrames(1,1,1);
+					this.divideButton.setFrames(1,0,1);
+				},
+				this, 1, 0, 1
+				);
+			this.multiplyButton.anchor.setTo(1,0);
+
+			this.divideButton = game.add.button(
+				this.addButton.x, 
+				this.addButton.y, 
+				'op-/', 
+				function changeOperand() {
+					this.game.sound.play('clickSound');
+					this.operand = '/';
+					this.addButton.setFrames(1,0,1);
+					this.subtractButton.setFrames(1,0,1);
+					this.multiplyButton.setFrames(1,0,1);
+					this.divideButton.setFrames(1,1,1);
+				},
+				this, 1, 0, 1
+				);
+			this.divideButton.anchor.setTo(0,0);
+
+		} else if (this.gamemode == "blitz") {
+			var topOperator = game.add.sprite(
+				game.world.centerX - (this.diceSize / 2),
+				this.headerMargin + this.gridSize - (107 * 1.0),
+				"op-" + this.operand);
+		}
+
+
+		this.buttonsLabel = this.game.add.text(
+			0, 0, "Operators:", 
+			{	font: "30px 'Yanone Kaffeesatz', sans-serif", 
+				fill: "#fff" }); 
+		this.buttonsLabel.x = this.addButton.x;
+		this.buttonsLabel.y = this.addButton.y - this.operatorSize - 35;
+		this.buttonsLabel.anchor.setTo(0.5, 0);
+
+	}, // end create buttons
 
 
 
@@ -702,12 +777,13 @@ Main.prototype = {
 		this.timerSprite = this.game.add.bitmapData(this.game.width, this.game.height);
 
 		// color it
-		this.timerSprite.ctx.rect(0,0, MathDice.Params.padding, this.game.height);
+		this.timerSprite.ctx.rect(0, 0, MathDice.Params.padding, this.game.height - this.headerMargin - (this.diceSize * 2));
 		this.timerSprite.ctx.fillStyle = '#A7CA00';
 		this.timerSprite.ctx.fill();
 
 		// define it
 		this.timerSprite = this.game.add.sprite(0, 0, this.timerSprite);
+		this.timerSprite.anchor.setTo(0.5);
 		this.timerSprite.cropEnabled = true;
 	}, // end create timer
 
@@ -715,11 +791,11 @@ Main.prototype = {
 
 	// update timer
 	updateTimer: function() {
-//		this.remainingTime -= 10;
-// uncomment to fire timer again
-		this.timerSprite.crop(cropRect);
+		this.remainingTime -= 10;
 
 		var cropRect = new Phaser.Rectangle(0, 0, (this.remainingTime / this.fullTime) * this.game.width, this.timerSprite.height);
+
+		this.timerSprite.crop(cropRect);
 	}, // end update timer
 
 };

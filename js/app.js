@@ -4,7 +4,9 @@ MathDice.Params = {
 	gameHeight: 900,
 	padding: 50,
 	menuButtonSize: 331,
+	targetDiceSize: 250,
 	diceSize: 120,
+	operatorSize: 109,
 	gridSize: {
 		rows: 5,
 		cols: 5
