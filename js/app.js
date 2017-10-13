@@ -5,12 +5,9 @@ MathDice.Params = {
 	padding: 50,
 	menuButtonSize: 331,
 	targetDiceSize: 250,
-	diceSize: 120,
-	operatorSize: 109,
-	gridSize: {
-		rows: 5,
-		cols: 5
-	}
+	diceSize: 125,
+	operatorSize: 108,
+	lowerButtonWidth: 134
 };
 
 var game;
