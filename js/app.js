@@ -2,7 +2,7 @@ var MathDice = {};
 MathDice.Params = {
 	gameWidth: 1200,
 	gameHeight: 900,
-	padding: 50,
+	padding: 30,
 	menuButtonSize: 331,
 	targetDiceSize: 250,
 	diceSize: 125,
@@ -11,6 +11,7 @@ MathDice.Params = {
 };
 
 var game;
+
 window.onload = function() {
 	//Create a new game that fills the screen
 	game = new Phaser.Game(MathDice.Params.gameWidth, MathDice.Params.gameHeight, Phaser.AUTO, '', null, true);

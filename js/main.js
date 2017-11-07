@@ -116,7 +116,10 @@ Main.prototype = {
 		// isolating 'this' for timer.
 		var g = this;
 		this.gameTimer = game.time.events.loop(100, function() {
-			g.updateTimer();
+			if (!this.isPaused) {
+				g.updateTimer();
+			}
+			g.resize(g.game.width, g.game.height);
 		});
 
 		// TRACKING
@@ -197,7 +200,7 @@ Main.prototype = {
 
 	// scale header
 	scaleHeader: function(width, height) {
-		this.scaleSprite(this.headerBar, width, height - (this.gridSize + this.diceSize * 2), 0, 1);
+		this.scaleSprite(this.headerBar, width, height - this.gridSize + (this.diceSize * 2), 0, 1);
 		this.headerBar.width = this.game.width;
 		this.headerBar.x = this.world.centerX;
 		this.scaleSprite(this.headerLogo, width, this.headerBar.height, 0, 1);
@@ -238,22 +241,20 @@ Main.prototype = {
 			// scale and position timer
 			this.timerText.x = rightColumn;
 			this.timerText.y = this.topMostGridPoint;
-			this.scaleSprite(this.timerBackground, width, this.gridSize, 0, 1);
-			var timerScale = this.timerBackground.scale.x * this.timerBackground.parent.scale.x;
+			this.scaleSprite(this.timer, width, this.gridSize, 0, 1);
+			var timerScale = this.timer.scale.x * this.timer.parent.scale.x;
 			this.timerText.fontSize = 35 * timerScale;
-			this.timerBackground.x = rightColumn;
-			this.timerBackground.y = this.topMostGridPoint + this.timerText.height;
+			this.timer.x = rightColumn;
+			this.timer.y = this.topMostGridPoint + this.timerText.height;
 			this.cropRect.width = this.game.width;
-			this.cropRect.height = this.timerBackground.height;
-			this.scaleSprite(this.timerSprite, width, this.timerBackground.height, 0, 1);
-			this.timerSprite.x = this.timerBackground.x;
-			this.timerSprite.y = this.timerBackground.y;
+			this.scaleSprite(this.timerFill, width, this.timer.height, 0, 1);
+			this.timerFill.x = this.timer.x;
+			this.timerFill.y = this.timer.y;
 
-			// move score
-				
+			// move score				
 			this.scoreText.fontSize = 35 * timerScale;
 			this.scoreText.x = rightColumn;
-			this.scoreText.y = this.timerBackground.y + this.timerBackground.height;
+			this.scoreText.y = this.timer.y + this.timer.height;
 
 			// size target dice
 			this.scaleSprite(this.targetDice, this.diceSize * 2, this.diceSize * 2, 0, 1);
@@ -515,10 +516,13 @@ Main.prototype = {
 
 	}, // end create lower buttons
 
+
+
 	// simple countdown
 	countdown: function(element) {
 		this.totalTime = this.totalTime + Math.floor(element/5);
 	},
+
 
 
 	// incorrectSum
@@ -534,7 +538,7 @@ Main.prototype = {
 				this.remainingTime -= 5;
 				break;
 		} 
-//		this.updateTargetNumber();
+		this.updateTargetNumber();
 	}, // end incorrect sum
 
 
@@ -762,9 +766,13 @@ Main.prototype = {
 		buildTargetNumber += nextTile.tileNumber;
 
 		// .toFixed to make sure no giant decimal strings, + eval to remove unnecessary zeroes
-		targetToHit = + eval(buildTargetNumber[0] + buildTargetNumber[1] + buildTargetNumber[2]).toFixed(2);
-
-		this.targetNumber.text = targetToHit;
+		targetToHit = + eval(buildTargetNumber[0] + buildTargetNumber[1] + buildTargetNumber[2]);
+		if (targetToHit % 1 != 0) {
+			var fractionTarget = new Fraction(buildTargetNumber[0], buildTargetNumber[2]);
+			this.targetNumber.text = fractionTarget.toString();
+		} else {
+			this.targetNumber.text = targetToHit;
+		}
 	}, // end update target
 
 
@@ -778,22 +786,22 @@ Main.prototype = {
 		this.timerText.anchor.setTo(0.5, 0);
 
 		// define it
-		this.timerBackground = this.game.add.sprite(0, 0, "timer", 0);
-		this.timerBackground.anchor.setTo(0.5, 0);
-		this.timerSprite = this.game.add.sprite(0, 0, "timer", 1);
-		this.timerSprite.cropEnabled = true;
-		this.timerSprite.anchor.setTo(0.5, 0);
+		this.timer = this.game.add.sprite(0, 0, "timer", 1);
+		this.timer.anchor.setTo(0.5, 0);
+		this.timerFill = this.game.add.sprite(0, 0, "timer", 0);
+		this.timerFill.cropEnabled = true;
+		this.timerFill.anchor.setTo(0.5, 0);
 
-		this.cropRect = new Phaser.Rectangle(0, 0, this.game.width, this.timerBackground.height);
-		this.timerSprite.crop(this.cropRect);
+		this.cropRect = new Phaser.Rectangle(0, 0, this.game.width, this.timer.height);
+		this.timerFill.crop(this.cropRect);
 
 	}, // end create timer
 
 
 
-	// update timer. this isn't working and i wanna die.
+	// update timer
 	updateTimer: function() {
-		if (this.isPaused) {		
+		if (!this.isPaused) {		
 			this.remainingTime -= 6;
 
 			var timeLeftInSeconds = Math.floor(this.remainingTime / 60);
@@ -804,24 +812,20 @@ Main.prototype = {
 			this.timerText.text = "Time Left: " + minutes + ":" + seconds;
 
 			if (this.remainingTime < 500) {
-				this.timerSprite.tint = 0xe73f2f;
+				this.timer.tint = 0xe73f2f;
 			}
-
-			this.cropRect.y = this.timerBackground.height * (this.remainingTime / this.fullTime);
-			this.timerSprite.y = this.timerBackground.y + this.cropRect.y;
-			console.log(this.timerSprite.y);
-			this.timerSprite.updateCrop();
+			// resize croprect in case screen has resized
+			this.cropRect.height = this.timer.height - (this.timer.height * (this.remainingTime / this.fullTime));
+			this.timerFill.y = this.cropRect.height;
+			this.timerFill.updateCrop();
 		}
 	}, // end update timer
 
 
 
 
-
 	// update that cup of juice every frame
 	update: function() {
-		// i'm sorry i just need a win here
-		this.resize(this.game.width, this.game.height);
 
 		if (!this.isPaused) {
 			// if currently guessing - cannot be true if mouse/touch is not active
@@ -914,7 +918,7 @@ Main.prototype = {
 								this.currentTileLevelCount = 0;
 								this.tileLevel++;
 								if (this.tileLevel >= 2) {
-									this.tileLevel = -1;
+									this.tileLevel = 1;
 								}
 							}
 							// push equation to tracking list
