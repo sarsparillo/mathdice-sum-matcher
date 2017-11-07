@@ -5,7 +5,7 @@ MathDice.Params = {
 	padding: 30,
 	menuButtonSize: 331,
 	targetDiceSize: 250,
-	diceSize: 125,
+	diceSize: 120,
 	operatorSize: 108,
 	lowerButtonWidth: 134
 };

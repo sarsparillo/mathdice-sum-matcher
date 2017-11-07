@@ -21,15 +21,15 @@ Preload.prototype = {
 		this.game.load.image('thinkfun', 'assets/screens/tflogo.png');
 		this.game.load.image('title', 'assets/screens/titletext.png');
 
-		this.game.load.spritesheet('d1', 'assets/dice/dice1.png', 127, 127, 3);
-		this.game.load.spritesheet('d2', 'assets/dice/dice2.png', 127, 127, 3);
-		this.game.load.spritesheet('d3', 'assets/dice/dice3.png', 127, 127, 3);
-		this.game.load.spritesheet('d4', 'assets/dice/dice4.png', 127, 127, 3);
-		this.game.load.spritesheet('d5', 'assets/dice/dice5.png', 127, 127, 3);
-		this.game.load.spritesheet('d6', 'assets/dice/dice6.png', 127, 127, 3);
-		this.game.load.spritesheet('d7', 'assets/dice/dice7.png', 127, 127, 3);
-		this.game.load.spritesheet('d8', 'assets/dice/dice8.png', 127, 127, 3);
-		this.game.load.spritesheet('d9', 'assets/dice/dice9.png', 127, 127, 3);
+		this.game.load.spritesheet('d1', 'assets/dice/dice1.png', 120, 120, 5);
+		this.game.load.spritesheet('d2', 'assets/dice/dice2.png', 120, 120, 5);
+		this.game.load.spritesheet('d3', 'assets/dice/dice3.png', 120, 120, 5);
+		this.game.load.spritesheet('d4', 'assets/dice/dice4.png', 120, 120, 5);
+		this.game.load.spritesheet('d5', 'assets/dice/dice5.png', 120, 120, 5);
+		this.game.load.spritesheet('d6', 'assets/dice/dice6.png', 120, 120, 5);
+		this.game.load.spritesheet('d7', 'assets/dice/dice7.png', 120, 120, 5);
+		this.game.load.spritesheet('d8', 'assets/dice/dice8.png', 120, 120, 5);
+		this.game.load.spritesheet('d9', 'assets/dice/dice9.png', 120, 120, 5);
 
 		this.game.load.image('targetDice', 'assets/dice/target.png');
 

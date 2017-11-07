@@ -359,7 +359,7 @@ Main.prototype = {
 		// add tile at correct x position, add from top of game to allow slide in
 		var tile = this.tiles.create(x * this.diceSize + this.diceSize / 2, 0, 'd' + tileNumber);
 			tile.frame = 1 + this.tileLevel;
-			tile.currentTileLevel = this.tileLevel;
+			tile.level = this.tileLevel;
 			tile.tileNumber = tileNumber;
 
 			tile.anchor.setTo(0.5);
@@ -483,7 +483,7 @@ Main.prototype = {
 					this.pauseButton.setFrames(1,0,2);
 					for (var k=0; k < 5; k++) {
 						for (var l=0; l < 5; l++) {
-							this.tileGrid[k][l].frame = 1 + this.tileGrid[k][l].currentTileLevel; 
+							this.tileGrid[k][l].frame = 1 + this.tileGrid[k][l].level; 
 						}
 					}
 				}
@@ -824,122 +824,139 @@ Main.prototype = {
 
 
 
+	// select tile
+	pickTile: function() {
+		// get cursor location
+		var cursorLocationX = this.game.input.x;
+		var cursorLocationY = this.game.input.y;
+
+		// where does that exist on the theoretical grid
+		var gridLocationX = Math.floor((cursorLocationX - this.leftMostGridPoint) / this.diceSize);
+		var gridLocationY = Math.floor((cursorLocationY - this.topMostGridPoint) / this.diceSize);
+
+		// check if dragging within game bounds - literally just 'if inside these bounds.' do nothing with that juice if it's off elsewhere 
+
+		if (gridLocationX >= 0 && 
+			gridLocationX < this.tileGrid[0].length && 
+			gridLocationY >= 0 && 
+			gridLocationY < this.tileGrid.length) {
+
+			// grab tile being hovered up ons
+			var activeTile = this.tileGrid[gridLocationX][gridLocationY];
+
+			// get grabbed tile bounds and add a buffer. getbounds doesn't allow easy buffers, so i usually avoid it
+
+			var tileLeftBounds = this.leftMostGridPoint + (gridLocationX * this.diceSize) + this.tileSelectionBuffer;
+			var tileRightBounds = this.leftMostGridPoint + (gridLocationX * this.diceSize) + this.diceSize - this.tileSelectionBuffer;
+			var tileTopBounds = this.topMostGridPoint + (gridLocationY * this.diceSize) + this.tileSelectionBuffer;
+			var tileBottomBounds = this.topMostGridPoint + (gridLocationY * this.diceSize) + this.diceSize - this.tileSelectionBuffer;
+
+			// if player is hovering over tile, set it active. also, there's margin checks for each tile (because of the getbounds buffer thing).
+			if (!activeTile.isActive && 
+				cursorLocationX > tileLeftBounds && 
+				cursorLocationX < tileRightBounds && 
+				cursorLocationY > tileTopBounds && 
+				cursorLocationY < tileBottomBounds &&
+				this.currentSum.length < 2) {			
+
+				// set tile active, make pink
+				activeTile.isActive = true;
+				activeTile.frame = 1;
+				this.game.input.onUp.add(function() {
+					activeTile.frame = 1 + activeTile.level;
+				}, this);
+				this.game.sound.play('clickSound');
+
+				// push tile to current sum
+				this.currentSum.push(activeTile);
+
+			}
+
+			// 'undo' - allow player to scroll back one 
+			else if (activeTile.isActive && this.currentSum.length == 2) {
+
+				//TODO
+
+			} // end undo
+
+		}
+	},
+
+	checkEquation: function() {
+		// check if there's two numbers in the sum
+		if (this.currentSum.length > 1) {
+
+			// build a string out of active tiles
+			var buildSum = '';
+			for (var i=0; i<this.currentSum.length; i++) {
+				buildSum += this.currentSum[i].tileNumber;
+				this.currentSum[i].isActive = false;
+			}
+
+			// calculate string
+			// .toFixed to make sure no giant decimal strings, + eval to remove unnecessary zeroes
+			buildSum += this.operand;
+			var finalEquation = + eval(buildSum[0] + buildSum[2] + buildSum[1]).toFixed(2);
+			console.log(finalEquation);
+
+			// check if finalEquation matches target
+			if (finalEquation == targetToHit) {
+				// success! you win the sum!
+				this.game.sound.play('successSound');
+				this.animateScore(this.currentSum[1].x, this.currentSum[1].y, this.operand);
+				//tile level calcs
+				if (this.currentSum[0].level != this.tileLevel) {
+					this.currentTileLevelCount++;
+				}
+
+				if (this.currentSum[1].level != this.tileLevel) {
+					this.currentTileLevelCount++;
+				}
+
+				if (this.currentTileLevelCount >= 25) {
+					this.currentTileLevelCount = 0;
+					this.tileLevel++;
+					if (this.tileLevel > 4) {
+						this.tileLevel = 1;
+					}
+				}
+				// push equation to tracking list
+				this.equationList.push(buildSum[0] + buildSum[2] + buildSum[1]);
+				// remove current sum
+				this.removeTile(this.currentSum);
+				if (this.gamemode == "classic") { 
+					this.remainingTime += 400;
+				}
+				this.resetTile();
+				this.getNewTiles();
+				console.log(this.equationList);
+				console.log(this.currentTileLevelCount);
+			} else {
+				this.incorrectSum(this.gamemode);
+			} // end success check
+		} else {
+			this.currentSum[0].isActive = false;
+		}
+		// reset current sum
+		this.currentSum = [];
+	},
+
+
 	// update that cup of juice every frame
 	update: function() {
-
+		// i mean, why are you doing game stuff while paused
 		if (!this.isPaused) {
+
 			// if currently guessing - cannot be true if mouse/touch is not active
 			if (this.guessing) {
 
-				// get cursor location
-				var cursorLocationX = this.game.input.x;
-				var cursorLocationY = this.game.input.y;
+				this.pickTile();
 
-				// where does that exist on the theoretical grid
-				var gridLocationX = Math.floor((cursorLocationX - this.leftMostGridPoint) / this.diceSize);
-				var gridLocationY = Math.floor((cursorLocationY - this.topMostGridPoint) / this.diceSize);
+			} else { // if NOT currently guessing...
 
-				// check if dragging within game bounds - literally just 'if inside these bounds'
-				if (gridLocationX >= 0 && 
-					gridLocationX < this.tileGrid[0].length && 
-					gridLocationY >= 0 && 
-					gridLocationY < this.tileGrid.length) {
-
-					// grab tile being hovered up ons
-					var activeTile = this.tileGrid[gridLocationX][gridLocationY];
-
-					// get grabbed tile bounds and add a buffer. getbounds doesn't allow easy buffers
-					var tileLeftBounds = this.leftMostGridPoint + (gridLocationX * this.diceSize) + this.tileSelectionBuffer;
-					var tileRightBounds = this.leftMostGridPoint + (gridLocationX * this.diceSize) + this.diceSize - this.tileSelectionBuffer;
-					var tileTopBounds = this.topMostGridPoint + (gridLocationY * this.diceSize) + this.tileSelectionBuffer;
-					var tileBottomBounds = this.topMostGridPoint + (gridLocationY * this.diceSize) + this.diceSize - this.tileSelectionBuffer;
-
-					// if player is hovering over tile, set it active. also, there's margin checks for each tile (because of the getbounds buffer thing).
-					if (!activeTile.isActive && 
-						cursorLocationX > tileLeftBounds && 
-						cursorLocationX < tileRightBounds && 
-						cursorLocationY > tileTopBounds && 
-						cursorLocationY < tileBottomBounds &&
-						this.currentSum.length < 2) {			
-
-						// set tile active, make pink
-						activeTile.isActive = true;
-						activeTile.frame = 1;
-						this.game.input.onUp.add(function() {
-							activeTile.frame = 1 + activeTile.currentTileLevel;
-						}, this);
-						this.game.sound.play('clickSound');
-
-						// push tile to current sum
-						this.currentSum.push(activeTile);
-
-					}
-					// 'undo' - allow player to scroll back one 
-					else if (activeTile.isActive && this.currentSum.length == 2) {
-
-								//TODO
-
-					}// end if hovering
-
-				} // end if inside bounds check
-
-			} else { // if NOT guessing...
-
-				// check if a sum exists at all
+				// check if a sum exists at all before running the check
 				if (this.currentSum.length > 0) {
-					// check if there's two numbers in the sum
-					if (this.currentSum.length > 1) {
-
-						// build a string out of active tiles
-						var buildSum = '';
-						for (var i=0; i<this.currentSum.length; i++) {
-							buildSum += this.currentSum[i].tileNumber;
-							this.currentSum[i].isActive = false;
-						}
-
-						// calculate string
-						// .toFixed to make sure no giant decimal strings, + eval to remove unnecessary zeroes
-						buildSum += this.operand;
-						var finalEquation = + eval(buildSum[0] + buildSum[2] + buildSum[1]).toFixed(2);
-
-						// check if finalEquation matches target
-						if (finalEquation == targetToHit) {
-							// success! you win the sum!
-							this.game.sound.play('successSound');
-							this.animateScore(this.currentSum[1].x, this.currentSum[1].y, this.operand);
-							//tile level calcs
-							if (this.currentSum[0].currentTileLevel != this.tileLevel) {
-								this.currentTileLevelCount++;
-							}
-							if (this.currentSum[1].currentTileLevel != this.tileLevel) {
-								this.currentTileLevelCount++;
-							}
-							if (this.currentTileLevelCount >= 25) {
-								this.currentTileLevelCount = 0;
-								this.tileLevel++;
-								if (this.tileLevel >= 2) {
-									this.tileLevel = 1;
-								}
-							}
-							// push equation to tracking list
-							this.equationList.push(buildSum[0] + buildSum[2] + buildSum[1]);
-							// remove current sum
-							this.removeTile(this.currentSum);
-							if (this.gamemode == "classic") { 
-								this.remainingTime += 400;
-							}
-							this.resetTile();
-							this.getNewTiles();
-							console.log(this.equationList);
-							console.log(this.currentTileLevelCount);
-						} else {
-							this.incorrectSum(this.gamemode);
-						} // end success check
-					} else {
-						this.currentSum[0].isActive = false;
-					}
-					// reset current sum
-					this.currentSum = [];
+					this.checkEquation();
 				} // end sum check
 
 			}
