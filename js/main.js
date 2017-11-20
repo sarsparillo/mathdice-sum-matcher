@@ -880,8 +880,12 @@ Main.prototype = {
 			} // end undo
 
 		}
-	},
+	}, // end tile select
 
+
+
+
+	// check if the equation matches the target
 	checkEquation: function() {
 		// check if there's two numbers in the sum
 		if (this.currentSum.length > 1) {
@@ -897,40 +901,13 @@ Main.prototype = {
 			// .toFixed to make sure no giant decimal strings, + eval to remove unnecessary zeroes
 			buildSum += this.operand;
 			var finalEquation = + eval(buildSum[0] + buildSum[2] + buildSum[1]).toFixed(2);
-			console.log(finalEquation);
+
+
+		console.log("Current equation: " + finalEquation);
 
 			// check if finalEquation matches target
 			if (finalEquation == targetToHit) {
-				// success! you win the sum!
-				this.game.sound.play('successSound');
-				this.animateScore(this.currentSum[1].x, this.currentSum[1].y, this.operand);
-				//tile level calcs
-				if (this.currentSum[0].level != this.tileLevel) {
-					this.currentTileLevelCount++;
-				}
-
-				if (this.currentSum[1].level != this.tileLevel) {
-					this.currentTileLevelCount++;
-				}
-
-				if (this.currentTileLevelCount >= 25) {
-					this.currentTileLevelCount = 0;
-					this.tileLevel++;
-					if (this.tileLevel > 4) {
-						this.tileLevel = 1;
-					}
-				}
-				// push equation to tracking list
-				this.equationList.push(buildSum[0] + buildSum[2] + buildSum[1]);
-				// remove current sum
-				this.removeTile(this.currentSum);
-				if (this.gamemode == "classic") { 
-					this.remainingTime += 400;
-				}
-				this.resetTile();
-				this.getNewTiles();
-				console.log(this.equationList);
-				console.log(this.currentTileLevelCount);
+				this.success();
 			} else {
 				this.incorrectSum(this.gamemode);
 			} // end success check
@@ -939,7 +916,75 @@ Main.prototype = {
 		}
 		// reset current sum
 		this.currentSum = [];
-	},
+	}, // end check equation
+
+
+
+
+
+	// do success
+	success: function() {
+		// success! you win the sum!
+		this.game.sound.play('successSound');
+		this.animateScore(this.currentSum[1].x, this.currentSum[1].y, this.operand);
+
+		//tile level calcs
+		this.updateTileLevel();
+
+		// push equation to tracking list
+		this.equationList.push(buildSum[0] + buildSum[2] + buildSum[1]);
+
+		// remove current sum
+		this.removeTile(this.currentSum);
+
+		// only 'classic' mode is theoretically endless
+		if (this.gamemode == "classic") { 
+			this.remainingTime += 400;
+		}
+
+		this.resetTile();
+		this.getNewTiles();
+	}, // end success function
+	
+
+
+
+	// handle tile level calculations
+	updateTileLevel: function() {
+		console.log("Game tile level: " + this.tileLevel);
+		console.log("Current tile level count: " + this.currentTileLevelCount);
+		console.log("Equation tile 1 level: " + this.currentSum[0].level + " and equation tile 2 level: " + this.currentSum[1].level);
+//		console.log("Sums so far: " + this.equationList);
+
+		if (this.currentSum[0].level != this.tileLevel) {
+			this.currentTileLevelCount++;
+		}
+
+		if (this.currentSum[1].level != this.tileLevel) {
+			this.currentTileLevelCount++;
+		}
+
+		if (this.currentTileLevelCount == 26) {
+			this.currentTileLevelCount = 1;
+			this.tileLevel++;
+			if (this.tileLevel > 4) {
+				this.tileLevel = 1;
+			}
+		}
+
+		if (this.currentTileLevelCount == 27) {
+			this.currentTileLevelCount = 2;
+			this.tileLevel++;
+			if (this.tileLevel > 4) {
+				this.tileLevel = 1;
+			}
+		}
+		
+
+
+	}, // end tile level calc
+
+
 
 
 	// update that cup of juice every frame
@@ -949,7 +994,7 @@ Main.prototype = {
 
 			// if currently guessing - cannot be true if mouse/touch is not active
 			if (this.guessing) {
-
+				
 				this.pickTile();
 
 			} else { // if NOT currently guessing...
